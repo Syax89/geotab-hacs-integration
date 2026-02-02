@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurazione Geotab",
+        "description": "Inserisci le tue credenziali MyGeotab.",
+        "data": {
+          "username": "Nome utente (Email)",
+          "password": "Password",
+          "database": "Database/Nome Server"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossibile connettersi al server Geotab. Controlla la connessione e il nome del server.",
+      "invalid_auth": "Nome utente, password o database non validi. Controlla le tue credenziali e riprova.",
+      "unknown": "Si è verificato un errore sconosciuto."
+    },
+    "abort": {
+      "already_configured": "Questo account Geotab è già configurato."
+    }
+  }
+}
