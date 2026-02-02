@@ -74,8 +74,6 @@ class GeotabApiClient:
             calls = [
                 ("Get", {"typeName": "Device"}),
                 ("Get", {"typeName": "DeviceStatusInfo"}),
-                ("Get", {"typeName": "FaultData", "search": {"state": "Active"}}),
-                ("Get", {"typeName": "Diagnostic"}), # For fault descriptions
             ]
             for diagnostic_id in DIAGNOSTICS_TO_FETCH.values():
                 calls.append(
@@ -97,9 +95,7 @@ class GeotabApiClient:
             # --- Process the results ---
             devices = results[0]
             device_statuses = results[1]
-            active_faults = results[2]
-            all_diagnostics = {diag["id"]: diag for diag in results[3]}
-            diagnostic_results = results[4:]
+            diagnostic_results = results[2:]
 
             status_map = {
                 status["device"]["id"]: status for status in device_statuses
@@ -111,20 +107,7 @@ class GeotabApiClient:
                     if "data" in item and "device" in item:
                         device_id = item["device"]["id"]
                         diagnostics_map[device_id][key] = item["data"]
-
-            faults_map = defaultdict(list)
-            for fault in active_faults:
-                device_id = fault["device"]["id"]
-                diagnostic_id = fault.get("diagnostic", {}).get("id")
-                diagnostic_details = all_diagnostics.get(diagnostic_id)
-                fault_info = {
-                    "id": fault["id"],
-                    "code": diagnostic_details.get("code") if diagnostic_details else "Unknown",
-                    "description": diagnostic_details.get("description") if diagnostic_details else "Unknown",
-                    "timestamp": fault.get("timestamp"),
-                }
-                faults_map[device_id].append(fault_info)
-
+            
             # Combine all data, keyed by device ID
             combined_data = {}
             for device in devices:
@@ -133,7 +116,6 @@ class GeotabApiClient:
                     data = device | status_info
                     if device_id in diagnostics_map:
                         data.update(diagnostics_map[device_id])
-                    data["active_faults"] = faults_map.get(device_id, [])
                     combined_data[device_id] = data
 
             return combined_data
