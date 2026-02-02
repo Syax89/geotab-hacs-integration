@@ -58,14 +58,26 @@ class GeotabApiClient:
     async def async_get_full_device_data(self) -> dict[str, dict]:
         """Get combined device, status, and odometer info from the API."""
         try:
-            # Fetch all data in parallel
-            devices, device_statuses, odometer_data = await asyncio.gather(
-                self.client.get_async("Device"),
-                self.client.get_async("DeviceStatusInfo"),
-                self.client.get_async(
+            loop = asyncio.get_running_loop()
+
+            # Define the blocking calls. We use the synchronous `get` method from the library.
+            def _get_devices():
+                return self.client.get("Device")
+
+            def _get_device_statuses():
+                return self.client.get("DeviceStatusInfo")
+
+            def _get_odometer_data():
+                return self.client.get(
                     "StatusData",
                     search={"diagnosticSearch": {"id": "DiagnosticOdometerId"}},
-                ),
+                )
+
+            # Run the blocking calls in parallel in the executor
+            devices, device_statuses, odometer_data = await asyncio.gather(
+                loop.run_in_executor(None, _get_devices),
+                loop.run_in_executor(None, _get_device_statuses),
+                loop.run_in_executor(None, _get_odometer_data),
             )
 
             # Create lookups for status and odometer info by device id
