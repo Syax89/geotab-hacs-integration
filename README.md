@@ -41,7 +41,7 @@ Once the integration is installed, you can add it to your Home Assistant configu
 3.  Enter your MyGeotab credentials:
     *   **Username (Email)**
     *   **Password**
-    *   **Database/Server Name** (usually `my.geotab.com`)
+    *   **Database/Server Name**
 4.  Click `Submit`.
 
 The integration will automatically create a device for each vehicle found in your Geotab account, along with its associated entities.
