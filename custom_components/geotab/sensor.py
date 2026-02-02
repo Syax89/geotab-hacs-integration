@@ -11,7 +11,13 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfLength, UnitOfSpeed, UnitOfElectricPotential
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfElectricPotential,
+    UnitOfLength,
+    UnitOfPressure,
+    UnitOfSpeed,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -61,6 +67,50 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("voltage"),
+    ),
+    GeotabSensorEntityDescription(
+        key="fuel_level",
+        name="Fuel Level",
+        icon="mdi:gas-station",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("fuel_level"),
+    ),
+    GeotabSensorEntityDescription(
+        key="tire_pressure_front_left",
+        name="Tire Pressure Front Left",
+        icon="mdi:tire",
+        native_unit_of_measurement=UnitOfPressure.KPA,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("tire_pressure_front_left"),
+    ),
+    GeotabSensorEntityDescription(
+        key="tire_pressure_front_right",
+        name="Tire Pressure Front Right",
+        icon="mdi:tire",
+        native_unit_of_measurement=UnitOfPressure.KPA,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("tire_pressure_front_right"),
+    ),
+    GeotabSensorEntityDescription(
+        key="tire_pressure_rear_left",
+        name="Tire Pressure Rear Left",
+        icon="mdi:tire",
+        native_unit_of_measurement=UnitOfPressure.KPA,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("tire_pressure_rear_left"),
+    ),
+    GeotabSensorEntityDescription(
+        key="tire_pressure_rear_right",
+        name="Tire Pressure Rear Right",
+        icon="mdi:tire",
+        native_unit_of_measurement=UnitOfPressure.KPA,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("tire_pressure_rear_right"),
     ),
 )
 
