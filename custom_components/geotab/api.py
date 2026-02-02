@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import socket
+from collections import defaultdict
 
 import aiohttp
 import mygeotab
@@ -19,6 +20,12 @@ class InvalidAuth(GeotabApiClientError):
 
 class ApiError(GeotabApiClientError):
     """Exception for API errors."""
+
+# Define the diagnostics we want to fetch
+DIAGNOSTICS_TO_FETCH = {
+    "odometer": "DiagnosticOdometerId",
+    "voltage": "DiagnosticGoDeviceVoltageId",
+}
 
 
 class GeotabApiClient:
@@ -44,8 +51,6 @@ class GeotabApiClient:
     async def async_authenticate(self) -> None:
         """Authenticate with the Geotab API."""
         try:
-            # The authenticate method itself is blocking.
-            # We run it in an executor to avoid blocking the event loop.
             loop = asyncio.get_running_loop()
             await loop.run_in_executor(None, self.client.authenticate)
         except AuthenticationException as e:
@@ -56,52 +61,60 @@ class GeotabApiClient:
             raise ApiError(f"An unexpected error occurred: {e}") from e
 
     async def async_get_full_device_data(self) -> dict[str, dict]:
-        """Get combined device, status, and odometer info from the API."""
+        """Get combined device and status info from the API using a multi-call."""
         try:
             loop = asyncio.get_running_loop()
 
-            # Define the blocking calls. We use the synchronous `get` method from the library.
-            def _get_devices():
-                return self.client.get("Device")
-
-            def _get_device_statuses():
-                return self.client.get("DeviceStatusInfo")
-
-            def _get_odometer_data():
-                return self.client.get(
-                    "StatusData",
-                    search={"diagnosticSearch": {"id": "DiagnosticOdometerId"}},
+            # Build the list of calls for the multi-call
+            calls = [
+                ("Get", {"typeName": "Device"}),
+                ("Get", {"typeName": "DeviceStatusInfo"}),
+            ]
+            for diagnostic_id in DIAGNOSTICS_TO_FETCH.values():
+                calls.append(
+                    (
+                        "Get",
+                        {
+                            "typeName": "StatusData",
+                            "search": {"diagnosticSearch": {"id": diagnostic_id}},
+                        },
+                    )
                 )
 
-            # Run the blocking calls in parallel in the executor
-            devices, device_statuses, odometer_data = await asyncio.gather(
-                loop.run_in_executor(None, _get_devices),
-                loop.run_in_executor(None, _get_device_statuses),
-                loop.run_in_executor(None, _get_odometer_data),
-            )
+            # --- Run the multi-call in the executor ---
+            def _multi_call():
+                return self.client.multi_call(calls)
 
-            # Create lookups for status and odometer info by device id
+            results = await loop.run_in_executor(None, _multi_call)
+
+            # --- Process the results ---
+            devices = results[0]
+            device_statuses = results[1]
+            diagnostic_results = results[2:]
+
             status_map = {
                 status["device"]["id"]: status for status in device_statuses
             }
-            odometer_map = {
-                odo["device"]["id"]: odo["data"]
-                for odo in odometer_data
-                if "data" in odo
-            }
 
-            # Combine the data, keyed by device ID
+            # Create a map for all diagnostics data
+            diagnostics_map = defaultdict(dict)
+            for i, key in enumerate(DIAGNOSTICS_TO_FETCH.keys()):
+                for item in diagnostic_results[i]:
+                    if "data" in item and "device" in item:
+                        device_id = item["device"]["id"]
+                        diagnostics_map[device_id][key] = item["data"]
+
+            # Combine all data, keyed by device ID
             combined_data = {}
             for device in devices:
                 device_id = device["id"]
                 if status_info := status_map.get(device_id):
-                    # Merge device and status info
                     data = device | status_info
-                    # Add odometer if available
-                    if odometer_value := odometer_map.get(device_id):
-                        data["odometer"] = odometer_value
+                    if device_id in diagnostics_map:
+                        data.update(diagnostics_map[device_id])
                     combined_data[device_id] = data
 
             return combined_data
+
         except Exception as e:
             raise ApiError(f"Failed to get device data: {e}") from e

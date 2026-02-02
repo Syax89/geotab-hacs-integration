@@ -53,6 +53,15 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         if data.get("odometer") is not None
         else None,
     ),
+    GeotabSensorEntityDescription(
+        key="voltage",
+        name="Battery Voltage",
+        icon="mdi:car-battery",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("voltage"),
+    ),
 )
 
 
