@@ -39,7 +39,6 @@ class GeotabApiClient:
             username=self._username,
             password=self._password,
             database=self._database,
-            session=session,
         )
 
     async def async_authenticate(self) -> None:
