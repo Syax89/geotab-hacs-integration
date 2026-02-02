@@ -11,7 +11,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .api import GeotabApiClient
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER,
         name="geotab_devices",
         update_method=client.async_get_full_device_data,
-        update_interval=timedelta(seconds=entry.data[CONF_SCAN_INTERVAL]),
+        update_interval=timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)),
     )
 
     # Fetch initial data so we have our devices ready
