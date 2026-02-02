@@ -124,7 +124,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("rpm"),
-        entity_registry_enabled_by_default=False,
+        entity_registry_enabled_default=False,
     ),
     GeotabSensorEntityDescription(
         key="coolant_temp",
@@ -134,7 +134,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("coolant_temp"),
-        entity_registry_enabled_by_default=False,
+        entity_registry_enabled_default=False,
     ),
     GeotabSensorEntityDescription(
         key="accelerator_pos",
@@ -143,7 +143,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("accelerator_pos"),
-        entity_registry_enabled_by_default=False,
+        entity_registry_enabled_default=False,
     ),
 )
 

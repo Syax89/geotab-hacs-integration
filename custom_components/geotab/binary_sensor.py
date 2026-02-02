@@ -46,7 +46,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         name="Door Ajar",
         device_class=BinarySensorDeviceClass.DOOR,
         is_on_fn=lambda data: data.get("door_status") == 1,
-        entity_registry_enabled_by_default=False,
+        entity_registry_enabled_default=False,
     ),
     GeotabBinarySensorEntityDescription(
         key="seatbelt_status",
@@ -55,7 +55,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         icon="mdi:seatbelt",
         # API returns 1 for unbuckled, so the sensor is "on" (problem state) when unbuckled.
         is_on_fn=lambda data: data.get("seatbelt_status") == 1,
-        entity_registry_enabled_by_default=False,
+        entity_registry_enabled_default=False,
     ),
 )
 
