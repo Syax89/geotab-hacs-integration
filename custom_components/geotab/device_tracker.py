@@ -56,13 +56,28 @@ class GeotabDeviceTracker(CoordinatorEntity, TrackerEntity):
     @property
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
+        # Retrieve username and database from the config entry stored in the coordinator
+        username = self.coordinator.config_entry.data.get("username", "Unknown")
+        database = self.coordinator.config_entry.data.get("database", "Unknown")
+        
+        # Build a configuration URL. Usually it's my.geotab.com/database
+        # If the database looks like a domain (has a dot), use it directly, otherwise assume my.geotab.com
+        if "." in database:
+            config_url = f"https://{database}"
+        else:
+            config_url = f"https://my.geotab.com/{database}"
+
         return DeviceInfo(
             identifiers={(DOMAIN, self._device_id)},
             name=self.device_data.get("name"),
             manufacturer="Geotab",
-            model=self.device_data.get("deviceType"),
+            # Show the database next to the model
+            model=f"{self.device_data.get('deviceType')} ({database})",
+            # Show the username as the "Hardware Version"
+            hw_version=f"User: {username}",
             sw_version=self.device_data.get("version"),
             serial_number=self.device_data.get("serialNumber"),
+            configuration_url=config_url,
         )
 
     @property
