@@ -121,7 +121,7 @@ class GeotabApiClient:
                     "id": fault["id"],
                     "code": diagnostic_details.get("code") if diagnostic_details else "Unknown",
                     "description": diagnostic_details.get("description") if diagnostic_details else "Unknown",
-                    "timestamp": fault["timestamp"],
+                    "timestamp": fault.get("timestamp"),
                 }
                 faults_map[device_id].append(fault_info)
 
