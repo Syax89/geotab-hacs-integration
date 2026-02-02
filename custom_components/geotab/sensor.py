@@ -37,6 +37,9 @@ class GeotabSensorEntityDescription(SensorEntityDescription):
     value_fn: Callable[[dict], StateType]
 
 
+# Conversion factor from Pascals (Pa) to PSI
+PA_TO_PSI = 0.000145038
+
 SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     GeotabSensorEntityDescription(
         key="speed",
@@ -54,7 +57,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        # Odometer data from the API is in meters, convert to km
         value_fn=lambda data: data.get("odometer", 0) / 1000
         if data.get("odometer") is not None
         else None,
@@ -83,7 +85,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("tire_pressure_front_left"),
+        value_fn=lambda data: data.get("tire_pressure_front_left", 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_right",
@@ -92,7 +94,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("tire_pressure_front_right"),
+        value_fn=lambda data: data.get("tire_pressure_front_right", 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_left",
@@ -101,7 +103,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("tire_pressure_rear_left"),
+        value_fn=lambda data: data.get("tire_pressure_rear_left", 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_right",
@@ -110,7 +112,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("tire_pressure_rear_right"),
+        value_fn=lambda data: data.get("tire_pressure_rear_right", 0) * PA_TO_PSI,
     ),
 )
 
@@ -125,7 +127,6 @@ async def async_setup_entry(
         GeotabSensor(coordinator, device_id, description)
         for device_id in coordinator.data
         for description in SENSORS
-        # Don't create a sensor if the data isn't available
         if description.value_fn(coordinator.data[device_id]) is not None
     ]
     async_add_entities(entities)
@@ -159,4 +160,8 @@ class GeotabSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
-        return self.entity_description.value_fn(self.device_data)
+        # Round the value if it's a float for cleaner display
+        value = self.entity_description.value_fn(self.device_data)
+        if isinstance(value, float):
+            return round(value, 2)
+        return value
