@@ -40,6 +40,12 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
             "faults": data.get("active_faults", []),
         },
     ),
+    GeotabBinarySensorEntityDescription(
+        key="is_driving",
+        name="Driving",
+        device_class=BinarySensorDeviceClass.MOVING,
+        is_on_fn=lambda data: data.get("isDriving"),
+    ),
     # --- Disabled by default sensors ---
     GeotabBinarySensorEntityDescription(
         key="door_status",
