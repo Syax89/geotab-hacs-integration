@@ -13,10 +13,12 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
+    REVOLUTIONS_PER_MINUTE,
     UnitOfElectricPotential,
     UnitOfLength,
     UnitOfPressure,
     UnitOfSpeed,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -113,6 +115,35 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("tire_pressure_rear_right", 0) * PA_TO_PSI,
+    ),
+    # --- Disabled by default sensors ---
+    GeotabSensorEntityDescription(
+        key="rpm",
+        name="Engine Speed",
+        icon="mdi:engine-outline",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("rpm"),
+        entity_registry_enabled_by_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="coolant_temp",
+        name="Coolant Temperature",
+        icon="mdi:thermometer",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("coolant_temp"),
+        entity_registry_enabled_by_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="accelerator_pos",
+        name="Accelerator Position",
+        icon="mdi:pedal",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("accelerator_pos"),
+        entity_registry_enabled_by_default=False,
     ),
 )
 

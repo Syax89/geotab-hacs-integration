@@ -30,6 +30,11 @@ DIAGNOSTICS_TO_FETCH = {
     "tire_pressure_front_right": "DiagnosticTirePressureFrontRightId",
     "tire_pressure_rear_left": "DiagnosticTirePressureRearLeftId",
     "tire_pressure_rear_right": "DiagnosticTirePressureRearRightId",
+    "rpm": "DiagnosticEngineSpeedId",
+    "coolant_temp": "DiagnosticEngineCoolantTemperatureId",
+    "accelerator_pos": "DiagnosticAcceleratorPedalPositionId",
+    "door_status": "DiagnosticDoorAjarId", # Common ID for any door being ajar
+    "seatbelt_status": "DiagnosticDriverSeatbeltId",
 }
 
 
