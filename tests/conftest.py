@@ -18,7 +18,7 @@ def mock_geotab_client():
         # Prepare mock results for devices, status and ALL diagnostics
         instance.multi_call.return_value = [
             [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}], # Devices
-            [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True}], # Status
+            [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0}], # Status
             # Fill with mock data for every diagnostic we fetch
             [{"device": {"id": "device1"}, "data": 100000}], # Odometer
             [{"device": {"id": "device1"}, "data": 13.5}], # Voltage
