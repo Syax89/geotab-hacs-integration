@@ -30,6 +30,7 @@ def mock_geotab_client():
             [{"device": {"id": "device1"}, "data": 2500}], # RPM
             [{"device": {"id": "device1"}, "data": 90}], # Coolant
             [{"device": {"id": "device1"}, "data": 15}], # Accelerator
+            [{"device": {"id": "device1"}, "data": 5000}], # Engine Hours
             [{"device": {"id": "device1"}, "data": 0}], # Door
             [{"device": {"id": "device1"}, "data": 0}], # Seatbelt
         ]

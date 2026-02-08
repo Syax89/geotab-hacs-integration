@@ -11,6 +11,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -36,6 +37,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         key="active_faults",
         name="Active Faults",
         device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: len(data.get("active_faults", [])) > 0,
         attr_fn=lambda data: {
             "fault_count": len(data.get("active_faults", [])),
@@ -48,11 +50,12 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.MOVING,
         is_on_fn=lambda data: data.get("isDriving"),
     ),
-    # --- Disabled by default sensors ---
+    # --- Status / Safety ---
     GeotabBinarySensorEntityDescription(
         key="door_status",
         name="Door Ajar",
         device_class=BinarySensorDeviceClass.DOOR,
+        entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.get("door_status") == 1,
         entity_registry_enabled_default=False,
     ),
@@ -61,6 +64,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         name="Driver Seatbelt",
         device_class=BinarySensorDeviceClass.SAFETY,
         icon="mdi:seatbelt",
+        entity_category=EntityCategory.DIAGNOSTIC,
         # API returns 1 for unbuckled, so the sensor is "on" (problem state) when unbuckled.
         is_on_fn=lambda data: data.get("seatbelt_status") == 1,
         entity_registry_enabled_default=False,

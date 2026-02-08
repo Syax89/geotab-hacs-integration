@@ -35,6 +35,7 @@ DIAGNOSTICS_TO_FETCH = {
     "rpm": "DiagnosticEngineSpeedId",
     "coolant_temp": "DiagnosticEngineCoolantTemperatureId",
     "accelerator_pos": "DiagnosticAcceleratorPedalPositionId",
+    "engine_hours": "DiagnosticEngineHoursId",
     "door_status": "DiagnosticDoorAjarId",  # Common ID for any door being ajar
     "seatbelt_status": "DiagnosticDriverSeatbeltId",
 }

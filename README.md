@@ -15,10 +15,11 @@ Monitor your Geotab vehicles and devices directly from Home Assistant. This inte
     *   **Driving Dynamics**: Speed (km/h) and Odometer (km).
     *   **Battery & Fuel**: Real-time voltage and fuel level percentage.
     *   **Tires**: Individual pressure monitoring for all four tires (PSI).
-    *   **Diagnostics**: Engine Speed (RPM), Coolant Temp, and Accelerator Position (disabled by default).
+    *   **Diagnostics**: Engine Speed (RPM), Coolant Temp, Engine Hours, and Accelerator Position.
 *   **🚨 Binary Sensors**:
     *   **Driving Status**: Instant feedback on vehicle movement.
     *   **Active Faults**: Detects diagnostic trouble codes (DTCs) and issues.
+    *   **Safety & Status**: Door Ajar and Seatbelt status (disabled by default).
 *   **🛡️ Security & Privacy**:
     *   **Data Masking**: Account emails are hidden from public UI views.
     *   **Resilience**: Graceful error handling and automated recovery (UpdateFailed support).

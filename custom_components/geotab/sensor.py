@@ -13,6 +13,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    EntityCategory,
     PERCENTAGE,
     REVOLUTIONS_PER_MINUTE,
     UnitOfElectricPotential,
@@ -20,6 +21,7 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -44,6 +46,7 @@ class GeotabSensorEntityDescription(SensorEntityDescription):
 PA_TO_PSI = 0.000145038
 
 SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
+    # --- Main Driving Data ---
     GeotabSensorEntityDescription(
         key="speed",
         name="Speed",
@@ -64,15 +67,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
             data.get("odometer", 0) / 1000 if data.get("odometer") is not None else None
         ),
     ),
-    GeotabSensorEntityDescription(
-        key="voltage",
-        name="Battery Voltage",
-        icon="mdi:car-battery",
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("voltage"),
-    ),
+    # --- Energy & Fuel ---
     GeotabSensorEntityDescription(
         key="fuel_level",
         name="Fuel Level",
@@ -82,12 +77,24 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         value_fn=lambda data: data.get("fuel_level"),
     ),
     GeotabSensorEntityDescription(
+        key="voltage",
+        name="Battery Voltage",
+        icon="mdi:car-battery",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("voltage"),
+    ),
+    # --- Tires ---
+    GeotabSensorEntityDescription(
         key="tire_pressure_front_left",
         name="Tire Pressure Front Left",
         icon="mdi:tire",
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("tire_pressure_front_left", 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
@@ -97,6 +104,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("tire_pressure_front_right", 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
@@ -106,6 +114,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("tire_pressure_rear_left", 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
@@ -115,15 +124,27 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("tire_pressure_rear_right", 0) * PA_TO_PSI,
     ),
-    # --- Disabled by default sensors ---
+    # --- Engine & Technical ---
+    GeotabSensorEntityDescription(
+        key="engine_hours",
+        name="Engine Hours",
+        icon="mdi:engine-timer",
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("engine_hours"),
+    ),
     GeotabSensorEntityDescription(
         key="rpm",
         name="Engine Speed",
         icon="mdi:engine-outline",
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("rpm"),
         entity_registry_enabled_default=False,
     ),
@@ -134,6 +155,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("coolant_temp"),
         entity_registry_enabled_default=False,
     ),
@@ -143,8 +165,18 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:pedal",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("accelerator_pos"),
         entity_registry_enabled_default=False,
+    ),
+    # --- System ---
+    GeotabSensorEntityDescription(
+        key="dateTime",
+        name="Last Update",
+        icon="mdi:clock-check",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("dateTime"),
     ),
 )
 
