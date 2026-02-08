@@ -1,20 +1,20 @@
 """Tests for Geotab API client."""
 import pytest
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from unittest.mock import MagicMock
 from custom_components.geotab.api import GeotabApiClient
 
 @pytest.mark.asyncio
-async def test_api_authenticate(hass, mock_geotab_client):
+async def test_api_authenticate(mock_geotab_client):
     """Test API authentication."""
-    session = async_get_clientsession(hass)
+    session = MagicMock()
     client = GeotabApiClient("user", "pass", "db", session)
     await client.async_authenticate()
     mock_geotab_client.authenticate.assert_called_once()
 
 @pytest.mark.asyncio
-async def test_api_get_data(hass, mock_geotab_client):
+async def test_api_get_data(mock_geotab_client):
     """Test API data retrieval."""
-    session = async_get_clientsession(hass)
+    session = MagicMock()
     client = GeotabApiClient("user", "pass", "db", session)
     data = await client.async_get_full_device_data()
     
