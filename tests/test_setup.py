@@ -7,7 +7,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.geotab.const import DOMAIN
 
 @pytest.mark.asyncio
-async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api):
+@pytest.mark.parametrize("expected_lingering_threads", [True])
+async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api, expected_lingering_threads):
     """Test setting up the integration config entry and verify entities."""
     entry = MockConfigEntry(
         domain=DOMAIN,
