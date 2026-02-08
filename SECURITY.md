@@ -4,7 +4,7 @@
 
 We take the security of this integration seriously. If you find a security vulnerability, please do not open a public issue. Instead, follow these steps:
 
-1. **Email the maintainer:** Send a detailed report to [simone.rondina@gmail.com](mailto:simone.rondina@gmail.com).
+1. **Contact the maintainer:** Reach out via GitHub Private Reporting or through established private channels.
 2. **Provide details:** Include a description of the vulnerability, steps to reproduce it, and any potential impact.
 3. **Wait for a response:** We will acknowledge your report and work on a fix as quickly as possible.
 
