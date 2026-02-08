@@ -1,4 +1,5 @@
 """Binary sensor platform for Geotab."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -25,6 +26,7 @@ from .const import DOMAIN
 @dataclass(frozen=True, kw_only=True)
 class GeotabBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Describes a Geotab binary sensor entity."""
+
     is_on_fn: Callable[[dict], bool]
     attr_fn: Callable[[dict], dict[str, StateType]] | None = None
 
@@ -76,8 +78,6 @@ async def async_setup_entry(
         GeotabBinarySensor(coordinator, device_id, description)
         for device_id in coordinator.data
         for description in BINARY_SENSORS
-        # Create entity if the value_fn would not cause an error
-        if coordinator.data.get(device_id, {}).get(description.key) is not None
     ]
     async_add_entities(entities)
 

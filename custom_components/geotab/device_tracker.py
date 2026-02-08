@@ -1,4 +1,5 @@
 """Device tracker for Geotab."""
+
 from __future__ import annotations
 
 from homeassistant.components.device_tracker import SourceType, TrackerEntity
@@ -6,7 +7,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
 
 from .const import DOMAIN
 
@@ -56,10 +60,9 @@ class GeotabDeviceTracker(CoordinatorEntity, TrackerEntity):
     @property
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
-        # Retrieve username and database from the config entry stored in the coordinator
-        username = self.coordinator.config_entry.data.get("username", "Unknown")
+        # Retrieve database from the config entry stored in the coordinator
         database = self.coordinator.config_entry.data.get("database", "Unknown")
-        
+
         # Build a configuration URL. Usually it's my.geotab.com/database
         # If the database looks like a domain (has a dot), use it directly, otherwise assume my.geotab.com
         if "." in database:

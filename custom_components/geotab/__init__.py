@@ -1,4 +1,5 @@
 """The Geotab integration."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -42,7 +43,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER,
         name="geotab_devices",
         update_method=client.async_get_full_device_data,
-        update_interval=timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)),
+        update_interval=timedelta(
+            seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        ),
     )
 
     # Fetch initial data so we have our devices ready

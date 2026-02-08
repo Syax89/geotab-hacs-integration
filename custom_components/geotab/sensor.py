@@ -1,4 +1,5 @@
 """Sensor platform for Geotab."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -59,9 +60,9 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        value_fn=lambda data: data.get("odometer", 0) / 1000
-        if data.get("odometer") is not None
-        else None,
+        value_fn=lambda data: (
+            data.get("odometer", 0) / 1000 if data.get("odometer") is not None else None
+        ),
     ),
     GeotabSensorEntityDescription(
         key="voltage",

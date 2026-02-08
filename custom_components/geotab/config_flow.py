@@ -1,4 +1,5 @@
 """Config flow for Geotab integration."""
+
 from __future__ import annotations
 
 import logging
@@ -21,9 +22,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required("username"): str,
         vol.Required("password"): str,
         vol.Required("database"): str,
-        vol.Optional(
-            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-        ): int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
     }
 )
 
@@ -59,7 +58,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except Exception as err:  # pylint: disable=broad-except-clause
                 # Security: Avoid logging the entire user_input dict which contains the password
-                _LOGGER.error("Unexpected exception during config flow: %s", type(err).__name__)
+                _LOGGER.error(
+                    "Unexpected exception during config flow: %s", type(err).__name__
+                )
                 if "base" not in errors:
                     errors["base"] = "unknown"
             else:
