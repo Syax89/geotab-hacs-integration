@@ -9,9 +9,20 @@ This integration connects to the MyGeotab API to retrieve real-time information 
 ## Features
 
 *   **Real-time Location Tracking**: Adds a `device_tracker` entity for each vehicle, allowing you to see its position on the Home Assistant map.
-*   **Speed Sensor**: Displays the current speed of each vehicle.
-*   **Odometer Sensor**: Displays the total distance traveled by the vehicle.
-*   **Easy Configuration**: The integration is easily configured via the Home Assistant user interface.
+*   **Comprehensive Sensors**: 
+    *   **Speed**: Current speed of each vehicle.
+    *   **Odometer**: Total distance traveled (with unit conversion).
+    *   **Battery Voltage**: Real-time voltage monitoring.
+    *   **Fuel Level**: Fuel percentage (where supported).
+    *   **Tire Pressure**: Individual pressure sensors for all four tires (PSI).
+    *   **Engine Data**: RPM, Coolant Temperature, and Accelerator Position (disabled by default).
+*   **Binary Sensors**:
+    *   **Driving Status**: Shows if the vehicle is currently moving.
+    *   **Active Faults**: Detects and reports diagnostic trouble codes (DTCs).
+*   **Security & Privacy Focused**:
+    *   **Username Masking**: Sensible account info is hidden from default views.
+    *   **Rate Limit Protection**: Built-in safety to prevent API bans.
+*   **Easy Configuration**: Full support for the Home Assistant UI and translations (EN/IT).
 
 ## Installation
 
@@ -41,10 +52,9 @@ Once the integration is installed, you can add it to your Home Assistant configu
 3.  Enter your MyGeotab credentials:
     *   **Username (Email)**
     *   **Password**
-    *   **Database/Server Name** (usually `my.geotab.com`)
+    *   **Database/Server Name**
+    *   **Scan Interval**: Frequency of updates (minimum 30 seconds).
 4.  Click `Submit`.
-
-The integration will automatically create a device for each vehicle found in your Geotab account, along with its associated entities.
 
 ## Contributions
 
