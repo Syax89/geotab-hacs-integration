@@ -1,14 +1,13 @@
 """Tests for Geotab entities setup."""
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.geotab.const import DOMAIN
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("expected_lingering_threads", [True])
-async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api, expected_lingering_threads):
+async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api):
     """Test setting up the integration config entry and verify entities."""
     entry = MockConfigEntry(
         domain=DOMAIN,
@@ -18,7 +17,7 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api, expected_lin
     )
     entry.add_to_hass(hass)
 
-    # Patch the coordinator to prevent real timers and background tasks
+    # Mock data that would be returned by the coordinator
     mock_data = {
         "device1": {
             "id": "device1", 
@@ -32,8 +31,10 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api, expected_lin
             "ignition": 1
         }
     }
-    
+
+    # We patch the DataUpdateCoordinator class to control its behavior
     with patch("custom_components.geotab.DataUpdateCoordinator") as mock_coord_class:
+        # Configure the mock coordinator instance
         coordinator = mock_coord_class.return_value
         coordinator.data = mock_data
         coordinator.async_config_entry_first_refresh = AsyncMock()
@@ -64,3 +65,6 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api, expected_lin
     # Clean unload
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
+    
+    # Ensure HA stops completely
+    await hass.async_stop()

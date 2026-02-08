@@ -1,5 +1,5 @@
 """Global fixtures for Geotab integration tests."""
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pytest
 
 @pytest.fixture(autouse=True)
