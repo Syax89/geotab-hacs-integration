@@ -73,8 +73,6 @@ class GeotabDeviceTracker(CoordinatorEntity, TrackerEntity):
             manufacturer="Geotab",
             # Show the database next to the model
             model=f"{self.device_data.get('deviceType')} ({database})",
-            # Show the username as the "Hardware Version"
-            hw_version=f"User: {username}",
             sw_version=self.device_data.get("version"),
             serial_number=self.device_data.get("serialNumber"),
             configuration_url=config_url,
@@ -87,4 +85,5 @@ class GeotabDeviceTracker(CoordinatorEntity, TrackerEntity):
             "speed": self.device_data.get("speed"),
             "is_driving": self.device_data.get("isDriving"),
             "last_updated": self.device_data.get("dateTime"),
+            "geotab_user": self.coordinator.config_entry.data.get("username"),
         }
