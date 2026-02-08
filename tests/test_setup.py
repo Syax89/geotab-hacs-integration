@@ -35,3 +35,7 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_client):
     
     # Binary sensors (unique_id: device1_is_driving)
     assert registry.async_get_entity_id("binary_sensor", DOMAIN, "device1_is_driving")
+
+    # Unload to cleanup threads
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
