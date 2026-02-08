@@ -65,9 +65,12 @@ class GeotabApiClient:
         """Authenticate with the Geotab API."""
         try:
             loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, self.client.authenticate)
+            async with asyncio.timeout(10):
+                await loop.run_in_executor(None, self.client.authenticate)
         except AuthenticationException as e:
             raise InvalidAuth("Invalid username, password, or database") from e
+        except asyncio.TimeoutError as e:
+            raise ApiError("Authentication timed out") from e
         except (socket.gaierror, aiohttp.ClientError) as e:
             raise ApiError(f"API connection error: {e}") from e
         except Exception as e:
@@ -98,7 +101,8 @@ class GeotabApiClient:
             def _multi_call():
                 return self.client.multi_call(calls)
 
-            results = await loop.run_in_executor(None, _multi_call)
+            async with asyncio.timeout(20):
+                results = await loop.run_in_executor(None, _multi_call)
 
             # --- Process the results ---
             devices = results[0]

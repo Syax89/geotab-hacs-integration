@@ -9,9 +9,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import GeotabApiClient
+from .api import GeotabApiClient, ApiError, InvalidAuth
 from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,11 +38,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     # Create the DataUpdateCoordinator
+    async def async_update_data():
+        """Fetch data from API endpoint."""
+        try:
+            return await client.async_get_full_device_data()
+        except InvalidAuth as err:
+            raise UpdateFailed(f"Invalid authentication: {err}") from err
+        except ApiError as err:
+            raise UpdateFailed(f"Error communicating with API: {err}") from err
+        except Exception as err:
+            raise UpdateFailed(f"Unexpected error: {err}") from err
+
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name="geotab_devices",
-        update_method=client.async_get_full_device_data,
+        update_method=async_update_data,
         update_interval=timedelta(
             seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         ),
