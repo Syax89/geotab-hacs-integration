@@ -40,5 +40,9 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_client):
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     
+    # Explicitly shutdown coordinator if it exists
+    if DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
+        hass.data[DOMAIN][entry.entry_id].async_shutdown()
+    
     # Ensure HA stops completely
     await hass.async_stop()
