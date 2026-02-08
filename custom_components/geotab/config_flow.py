@@ -39,7 +39,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> GeotabOptionsFlowHandler:
         """Get the options flow for this handler."""
-        return GeotabOptionsFlowHandler(config_entry)
+        return GeotabOptionsFlowHandler()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -85,10 +85,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class GeotabOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle Geotab options."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize Geotab options flow."""
-        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
