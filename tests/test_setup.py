@@ -39,3 +39,6 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_client):
     # Unload to cleanup threads
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
+    
+    # Ensure HA stops completely
+    await hass.async_stop()
