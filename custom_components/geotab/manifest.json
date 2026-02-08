@@ -1,7 +1,6 @@
 {
   "domain": "geotab",
   "name": "Geotab",
-  "description": "Home Assistant integration for Geotab fleet management devices. Provides real-time location tracking and vehicle sensors.",
   "documentation": "https://github.com/simonerondina/geotab-hacs-integration",
   "issue_tracker": "https://github.com/simonerondina/geotab-hacs-integration/issues",
   "codeowners": ["@simonerondina"],
