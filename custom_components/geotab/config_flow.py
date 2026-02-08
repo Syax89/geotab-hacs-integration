@@ -39,7 +39,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> GeotabOptionsFlowHandler:
         """Get the options flow for this handler."""
-        return GeotabOptionsFlowHandler()
+        return GeotabOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -86,6 +86,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class GeotabOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle Geotab options."""
 
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self._config_entry = config_entry
+
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
@@ -99,9 +103,9 @@ class GeotabOptionsFlowHandler(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_SCAN_INTERVAL,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_SCAN_INTERVAL,
-                            self.config_entry.data.get(
+                            self._config_entry.data.get(
                                 CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
                             ),
                         ),
