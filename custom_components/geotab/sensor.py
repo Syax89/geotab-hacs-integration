@@ -145,7 +145,9 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("rpm"),
+        value_fn=lambda data: (
+            data.get("rpm", 0) if data.get("ignition") == 1 else 0
+        ),
         entity_registry_enabled_default=False,
     ),
     GeotabSensorEntityDescription(
@@ -166,7 +168,9 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("accelerator_pos"),
+        value_fn=lambda data: (
+            data.get("accelerator_pos", 0) if data.get("ignition") == 1 else 0
+        ),
         entity_registry_enabled_default=False,
     ),
     # --- System ---
