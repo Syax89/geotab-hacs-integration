@@ -1,5 +1,5 @@
 """Global fixtures for Geotab integration tests."""
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, MagicMock
 import pytest
 
 @pytest.fixture(autouse=True)
@@ -9,9 +9,9 @@ def auto_enable_custom_integrations(hass):
     yield
 
 @pytest.fixture
-def mock_geotab_client():
-    """Mock Geotab API client."""
-    with patch("custom_components.geotab.api.mygeotab.API") as mock:
+def mock_geotab_api():
+    """Mock the underlying mygeotab API library."""
+    with patch("mygeotab.API") as mock:
         instance = mock.return_value
         instance.authenticate.return_value = True
         
@@ -19,7 +19,6 @@ def mock_geotab_client():
         instance.multi_call.return_value = [
             [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}], # Devices
             [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0}], # Status
-            # Fill with mock data for every diagnostic we fetch
             [{"device": {"id": "device1"}, "data": 100000}], # Odometer
             [{"device": {"id": "device1"}, "data": 13.5}], # Voltage
             [{"device": {"id": "device1"}, "data": 75.0}], # Fuel
@@ -27,11 +26,11 @@ def mock_geotab_client():
             [{"device": {"id": "device1"}, "data": 220000}], # Tire FR
             [{"device": {"id": "device1"}, "data": 220000}], # Tire RL
             [{"device": {"id": "device1"}, "data": 220000}], # Tire RR
+            [{"device": {"id": "device1"}, "data": 5000}], # Engine Hours
             [{"device": {"id": "device1"}, "data": 2500}], # RPM
             [{"device": {"id": "device1"}, "data": 90}], # Coolant
             [{"device": {"id": "device1"}, "data": 15}], # Accelerator
-            [{"device": {"id": "device1"}, "data": 5000}], # Engine Hours
-            [{"device": {"id": "device1"}, "data": 1}], # Ignition (ON)
+            [{"device": {"id": "device1"}, "data": 1}], # Ignition
             [{"device": {"id": "device1"}, "data": 0}], # Door
             [{"device": {"id": "device1"}, "data": 0}], # Seatbelt
         ]
