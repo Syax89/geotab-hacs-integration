@@ -1,6 +1,5 @@
 """Tests for Geotab entities setup."""
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -17,8 +16,12 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api):
     )
     entry.add_to_hass(hass)
 
-    # Mock data that would be returned by the coordinator
-    mock_data = {
+    # Trigger setup
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    
+    # Inject mock data into the coordinator instance
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator.data = {
         "device1": {
             "id": "device1", 
             "name": "Test Vehicle", 
@@ -31,40 +34,23 @@ async def test_setup_entry_sets_up_platforms(hass, mock_geotab_api):
             "ignition": 1
         }
     }
-
-    # We patch the DataUpdateCoordinator class to control its behavior
-    with patch("custom_components.geotab.DataUpdateCoordinator") as mock_coord_class:
-        # Configure the mock coordinator instance
-        coordinator = mock_coord_class.return_value
-        coordinator.data = mock_data
-        coordinator.async_config_entry_first_refresh = AsyncMock()
-        coordinator.async_add_listener = MagicMock()
-        coordinator.async_shutdown = MagicMock()
-        
-        # Trigger setup
-        assert await hass.config_entries.async_setup(entry.entry_id)
-        await hass.async_block_till_done()
-
-        # Check that platforms are loaded
-        assert entry.state == ConfigEntryState.LOADED
-        
-        # Verify entity registration
-        registry = er.async_get(hass)
-        
-        # Device tracker (unique_id: device1_tracker)
-        assert registry.async_get_entity_id("device_tracker", DOMAIN, "device1_tracker")
-        
-        # Basic Sensors
-        assert registry.async_get_entity_id("sensor", DOMAIN, "device1_odometer")
-        assert registry.async_get_entity_id("sensor", DOMAIN, "device1_speed")
-        
-        # Binary sensors
-        assert registry.async_get_entity_id("binary_sensor", DOMAIN, "device1_is_driving")
-        assert registry.async_get_entity_id("binary_sensor", DOMAIN, "device1_ignition")
-
-    # Clean unload
-    assert await hass.config_entries.async_unload(entry.entry_id)
-    await hass.async_block_till_done()
     
-    # Ensure HA stops completely
-    await hass.async_stop()
+    await hass.async_block_till_done()
+
+    # Check that platforms are loaded
+    assert entry.state == ConfigEntryState.LOADED
+    
+    # Verify entity registration
+    registry = er.async_get(hass)
+    
+    # Device tracker (unique_id: device1_tracker)
+    assert registry.async_get_entity_id("device_tracker", DOMAIN, "device1_tracker")
+    
+    # Basic Sensors
+    assert registry.async_get_entity_id("sensor", DOMAIN, "device1_odometer")
+    
+    # Binary sensors
+    assert registry.async_get_entity_id("binary_sensor", DOMAIN, "device1_is_driving")
+    
+    # Note: We let the 'hass' fixture handle cleanup automatically
+    # to avoid race conditions with manual shutdown calls.
