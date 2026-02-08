@@ -40,6 +40,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
+                # Security: Validate scan interval (min 30s to prevent rate limiting issues)
+                if user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL) < 30:
+                    errors[CONF_SCAN_INTERVAL] = "min_scan_interval"
+                    raise ValueError("Scan interval too short")
+
                 session = async_get_clientsession(self.hass)
                 client = GeotabApiClient(
                     username=user_input["username"],
@@ -52,9 +57,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_auth"
             except ApiError:
                 errors["base"] = "cannot_connect"
-            except Exception:  # pylint: disable=broad-except-clause
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
+            except Exception as err:  # pylint: disable=broad-except-clause
+                # Security: Avoid logging the entire user_input dict which contains the password
+                _LOGGER.error("Unexpected exception during config flow: %s", type(err).__name__)
+                if "base" not in errors:
+                    errors["base"] = "unknown"
             else:
                 await self.async_set_unique_id(user_input["username"].lower())
                 self._abort_if_unique_id_configured()

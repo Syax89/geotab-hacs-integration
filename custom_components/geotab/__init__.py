@@ -17,6 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # List of platforms to support.
 PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
     Platform.DEVICE_TRACKER,
     Platform.SENSOR,
 ]

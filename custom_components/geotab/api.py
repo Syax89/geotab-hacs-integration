@@ -102,12 +102,16 @@ class GeotabApiClient:
             device_statuses = results[1]
             diagnostic_results = results[2:]
 
+            # Map status info by device ID
             status_map = {
-                status["device"]["id"]: status for status in device_statuses
+                status["device"]["id"]: status for status in device_statuses if "device" in status
             }
 
+            # Map diagnostic data by device ID and key
             diagnostics_map = defaultdict(dict)
-            for i, key in enumerate(DIAGNOSTICS_TO_FETCH.keys()):
+            diagnostic_keys = list(DIAGNOSTICS_TO_FETCH.keys())
+            
+            for i, key in enumerate(diagnostic_keys):
                 for item in diagnostic_results[i]:
                     if "data" in item and "device" in item:
                         device_id = item["device"]["id"]
@@ -116,12 +120,19 @@ class GeotabApiClient:
             # Combine all data, keyed by device ID
             combined_data = {}
             for device in devices:
-                device_id = device["id"]
+                device_id = device.get("id")
+                if not device_id:
+                    continue
+                
+                # Merge device info, status, and diagnostics
+                data = device.copy()
                 if status_info := status_map.get(device_id):
-                    data = device | status_info
-                    if device_id in diagnostics_map:
-                        data.update(diagnostics_map[device_id])
-                    combined_data[device_id] = data
+                    data.update(status_info)
+                
+                if device_id in diagnostics_map:
+                    data.update(diagnostics_map[device_id])
+                
+                combined_data[device_id] = data
 
             return combined_data
 
