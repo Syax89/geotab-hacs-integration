@@ -51,6 +51,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch initial data so we have our devices ready
     await coordinator.async_config_entry_first_refresh()
 
+    # Add update listener for options
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+
     # Store the coordinator in hass.data
     coordinator.config_entry = entry
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -59,6 +62,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
