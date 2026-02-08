@@ -1,6 +1,6 @@
 """Tests for Geotab entities setup."""
 import pytest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 from custom_components.geotab.sensor import async_setup_entry as async_setup_sensor
 from custom_components.geotab.binary_sensor import async_setup_entry as async_setup_binary
 from custom_components.geotab.device_tracker import async_setup_entry as async_setup_tracker
@@ -13,7 +13,7 @@ async def test_platform_setup_entities(hass, mock_geotab_api):
     entry.entry_id = "test_id"
     entry.data = {"username": "user", "password": "pass", "database": "db"}
     
-    # Mock coordinator
+    # Mock coordinator with all necessary data including last_trip
     coordinator = MagicMock()
     coordinator.data = {
         "device1": {
@@ -25,7 +25,12 @@ async def test_platform_setup_entities(hass, mock_geotab_api):
             "isDriving": True,
             "speed": 50.0,
             "odometer": 100000,
-            "ignition": 1
+            "ignition": 1,
+            "last_trip": {
+                "distance": 15000,
+                "start": "2026-02-08T10:00:00Z",
+                "stop": "2026-02-08T10:30:00Z"
+            }
         }
     }
     hass.data[DOMAIN] = {entry.entry_id: coordinator}
@@ -36,6 +41,7 @@ async def test_platform_setup_entities(hass, mock_geotab_api):
     # Test Sensor setup
     await async_setup_sensor(hass, entry, async_add_entities)
     assert async_add_entities.called
+    # Should have called with our sensors including last_trip_distance
     
     # Test Binary Sensor setup
     async_add_entities.reset_mock()

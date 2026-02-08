@@ -79,15 +79,24 @@ class GeotabApiClient:
             raise ApiError(f"An unexpected error occurred: {e}") from e
 
     async def async_get_full_device_data(self) -> dict[str, dict]:
-        """Get combined device and status info from the API using a multi-call."""
+        """Get combined device and status info from the API using multi-calls."""
         try:
             loop = asyncio.get_running_loop()
 
-            # Build the list of calls for the multi-call
-            calls = [
-                ("Get", {"typeName": "Device"}),
-                ("Get", {"typeName": "DeviceStatusInfo"}),
-            ]
+            # 1. First, get the list of devices to know what to query for
+            def _get_devices():
+                return self.client.get("Device")
+
+            async with asyncio.timeout(10):
+                devices = await loop.run_in_executor(None, _get_devices)
+
+            if not devices:
+                return {}
+
+            # 2. Build a multi-call for status, diagnostics and the latest trip per device
+            calls = [("Get", {"typeName": "DeviceStatusInfo"})]
+            
+            # Diagnostics
             for diagnostic_id in DIAGNOSTICS_TO_FETCH.values():
                 calls.append(
                     (
@@ -98,18 +107,35 @@ class GeotabApiClient:
                         },
                     )
                 )
+            
+            # Latest Trip for each device
+            for device in devices:
+                calls.append(
+                    (
+                        "Get",
+                        {
+                            "typeName": "Trip",
+                            "search": {"deviceSearch": {"id": device["id"]}},
+                            "resultsLimit": 1,
+                        },
+                    )
+                )
 
-            # --- Run the multi-call in the executor ---
             def _multi_call():
                 return self.client.multi_call(calls)
 
-            async with asyncio.timeout(20):
+            async with asyncio.timeout(30):
                 results = await loop.run_in_executor(None, _multi_call)
 
             # --- Process the results ---
-            devices = results[0]
-            device_statuses = results[1]
-            diagnostic_results = results[2:]
+            device_statuses = results[0]
+            
+            # Diagnostics indexing
+            diag_count = len(DIAGNOSTICS_TO_FETCH)
+            diagnostic_results = results[1 : 1 + diag_count]
+            
+            # Trip indexing
+            trip_results = results[1 + diag_count :]
 
             # Map status info by device ID
             status_map = {
@@ -127,6 +153,12 @@ class GeotabApiClient:
                     if "data" in item and "device" in item:
                         device_id = item["device"]["id"]
                         diagnostics_map[device_id][key] = item["data"]
+            
+            # Map latest trip by device ID
+            trip_map = {}
+            for i, device in enumerate(devices):
+                if trip_results[i]:
+                    trip_map[device["id"]] = trip_results[i][0]
 
             # Combine all data, keyed by device ID
             combined_data = {}
@@ -135,13 +167,16 @@ class GeotabApiClient:
                 if not device_id:
                     continue
 
-                # Merge device info, status, and diagnostics
+                # Merge device info, status, diagnostics, and trip
                 data = device.copy()
                 if status_info := status_map.get(device_id):
                     data.update(status_info)
 
                 if device_id in diagnostics_map:
                     data.update(diagnostics_map[device_id])
+                
+                if device_id in trip_map:
+                    data["last_trip"] = trip_map[device_id]
 
                 combined_data[device_id] = data
 

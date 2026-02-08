@@ -173,6 +173,20 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         ),
         entity_registry_enabled_default=False,
     ),
+    # --- Last Trip Data ---
+    GeotabSensorEntityDescription(
+        key="last_trip_distance",
+        name="Last Trip Distance",
+        icon="mdi:map-marker-distance",
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        device_class=SensorDeviceClass.DISTANCE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: (
+            data.get("last_trip", {}).get("distance", 0) / 1000
+            if data.get("last_trip")
+            else None
+        ),
+    ),
     # --- System ---
     GeotabSensorEntityDescription(
         key="dateTime",
@@ -233,3 +247,17 @@ class GeotabSensor(CoordinatorEntity, SensorEntity):
         if isinstance(value, float):
             return round(value, 2)
         return value
+
+    @property
+    def extra_state_attributes(self) -> dict[str, any] | None:
+        """Return extra state attributes."""
+        if self.entity_description.key == "last_trip_distance":
+            if trip := self.device_data.get("last_trip"):
+                return {
+                    "start": trip.get("start"),
+                    "stop": trip.get("stop"),
+                    "maximum_speed": trip.get("maximumSpeed"),
+                    "driving_duration": trip.get("drivingDuration"),
+                    "idling_duration": trip.get("idlingDuration"),
+                }
+        return None

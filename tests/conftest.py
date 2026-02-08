@@ -15,9 +15,11 @@ def mock_geotab_api():
         instance = mock.return_value
         instance.authenticate.return_value = True
         
-        # Prepare mock results for devices, status and ALL diagnostics
+        # Mock for .get("Device")
+        instance.get.return_value = [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}]
+        
+        # Prepare mock results for multi_call: status, diagnostics, and 1 trip
         instance.multi_call.return_value = [
-            [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}], # Devices
             [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0}], # Status
             [{"device": {"id": "device1"}, "data": 100000}], # Odometer
             [{"device": {"id": "device1"}, "data": 13.5}], # Voltage
@@ -33,5 +35,7 @@ def mock_geotab_api():
             [{"device": {"id": "device1"}, "data": 1}], # Ignition
             [{"device": {"id": "device1"}, "data": 0}], # Door
             [{"device": {"id": "device1"}, "data": 0}], # Seatbelt
+            # Trip Result for device1
+            [{"id": "trip1", "distance": 15000, "start": "2026-02-08T10:00:00Z", "stop": "2026-02-08T10:30:00Z"}] 
         ]
         yield instance
