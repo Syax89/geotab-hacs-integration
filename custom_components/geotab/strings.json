@@ -2,22 +2,24 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configurazione Geotab",
-        "description": "Inserisci le tue credenziali MyGeotab.",
+        "title": "Geotab Configuration",
+        "description": "Enter your Geotab credentials to integrate your devices with Home Assistant.",
         "data": {
-          "username": "Nome utente (Email)",
+          "username": "Username",
           "password": "Password",
-          "database": "Database/Nome Server"
+          "database": "Database/Server",
+          "scan_interval": "Scan Interval (seconds)"
         }
       }
     },
     "error": {
-      "cannot_connect": "Impossibile connettersi al server Geotab. Controlla la connessione e il nome del server.",
-      "invalid_auth": "Nome utente, password o database non validi. Controlla le tue credenziali e riprova.",
-      "unknown": "Si è verificato un errore sconosciuto."
+      "cannot_connect": "Failed to connect to Geotab API",
+      "invalid_auth": "Invalid username, password, or database",
+      "min_scan_interval": "Scan interval must be at least 30 seconds",
+      "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "Questo account Geotab è già configurato."
+      "already_configured": "Account already configured."
     }
   }
 }
