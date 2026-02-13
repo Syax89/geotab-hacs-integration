@@ -96,6 +96,7 @@ async def async_setup_entry(
 class GeotabBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """A Geotab binary sensor."""
 
+    _attr_has_entity_name = True
     entity_description: GeotabBinarySensorEntityDescription
 
     def __init__(

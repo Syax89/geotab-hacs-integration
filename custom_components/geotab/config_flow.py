@@ -73,10 +73,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if "base" not in errors:
                     errors["base"] = "unknown"
             else:
-                await self.async_set_unique_id(user_input["username"].lower())
+                unique_id = f"{user_input['username'].lower()}_{user_input['database'].lower()}"
+                await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=user_input["username"], data=user_input
+                    title=f"{user_input['username']} ({user_input['database']})", 
+                    data=user_input
                 )
 
         return self.async_show_form(

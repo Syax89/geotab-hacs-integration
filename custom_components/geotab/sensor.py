@@ -32,7 +32,7 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, PA_TO_PSI
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -41,9 +41,6 @@ class GeotabSensorEntityDescription(SensorEntityDescription):
 
     value_fn: Callable[[dict], StateType]
 
-
-# Conversion factor from Pascals (Pa) to PSI
-PA_TO_PSI = 0.000145038
 
 SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # --- Main Driving Data ---
@@ -217,6 +214,7 @@ async def async_setup_entry(
 class GeotabSensor(CoordinatorEntity, SensorEntity):
     """A Geotab sensor."""
 
+    _attr_has_entity_name = True
     entity_description: GeotabSensorEntityDescription
 
     def __init__(

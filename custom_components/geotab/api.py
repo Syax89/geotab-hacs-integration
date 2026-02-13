@@ -93,10 +93,10 @@ class GeotabApiClient:
             if not devices:
                 return {}
 
-            # 2. Build a multi-call for status, diagnostics and the latest trip per device
+            # 2. Build a multi-call for status, diagnostics, faults and the latest trip per device
             calls = [("Get", {"typeName": "DeviceStatusInfo"})]
             
-            # Diagnostics
+            # Diagnostics (Latest per device for each diagnostic)
             for diagnostic_id in DIAGNOSTICS_TO_FETCH.values():
                 calls.append(
                     (
@@ -104,9 +104,22 @@ class GeotabApiClient:
                         {
                             "typeName": "StatusData",
                             "search": {"diagnosticSearch": {"id": diagnostic_id}},
+                            "resultsLimit": len(devices), # Fetch latest for all devices
                         },
                     )
                 )
+            
+            # Active Faults
+            calls.append(
+                (
+                    "Get",
+                    {
+                        "typeName": "FaultData",
+                        "search": {"excludeDismissed": True},
+                        "resultsLimit": len(devices) * 5,
+                    },
+                )
+            )
             
             # Latest Trip for each device
             for device in devices:
@@ -134,8 +147,11 @@ class GeotabApiClient:
             diag_count = len(DIAGNOSTICS_TO_FETCH)
             diagnostic_results = results[1 : 1 + diag_count]
             
+            # Faults indexing
+            fault_results = results[1 + diag_count]
+            
             # Trip indexing
-            trip_results = results[1 + diag_count :]
+            trip_results = results[2 + diag_count :]
 
             # Map status info by device ID
             status_map = {
@@ -152,7 +168,15 @@ class GeotabApiClient:
                 for item in diagnostic_results[i]:
                     if "data" in item and "device" in item:
                         device_id = item["device"]["id"]
-                        diagnostics_map[device_id][key] = item["data"]
+                        # We only keep the latest one (multi_call returns them in order)
+                        if key not in diagnostics_map[device_id]:
+                            diagnostics_map[device_id][key] = item["data"]
+            
+            # Map faults by device ID
+            fault_map = defaultdict(list)
+            for fault in fault_results:
+                if "device" in fault:
+                    fault_map[fault["device"]["id"]].append(fault)
             
             # Map latest trip by device ID
             trip_map = {}
@@ -174,6 +198,9 @@ class GeotabApiClient:
 
                 if device_id in diagnostics_map:
                     data.update(diagnostics_map[device_id])
+                
+                if device_id in fault_map:
+                    data["active_faults"] = fault_map[device_id]
                 
                 if device_id in trip_map:
                     data["last_trip"] = trip_map[device_id]
