@@ -18,7 +18,7 @@ def mock_geotab_api():
         # Mock for .get("Device")
         instance.get.return_value = [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}]
         
-        # Prepare mock results for multi_call: status, diagnostics, and 1 trip
+        # Prepare mock results for multi_call: status, diagnostics, faults, and 1 trip
         instance.multi_call.return_value = [
             [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0}], # Status
             [{"device": {"id": "device1"}, "data": 100000}], # Odometer
@@ -32,9 +32,12 @@ def mock_geotab_api():
             [{"device": {"id": "device1"}, "data": 2500}], # RPM
             [{"device": {"id": "device1"}, "data": 90}], # Coolant
             [{"device": {"id": "device1"}, "data": 15}], # Accelerator
+            [{"device": {"id": "device1"}, "data": 500000}], # Engine Hours (repeated/placeholder)
             [{"device": {"id": "device1"}, "data": 1}], # Ignition
             [{"device": {"id": "device1"}, "data": 0}], # Door
             [{"device": {"id": "device1"}, "data": 0}], # Seatbelt
+            # Fault Data
+            [{"device": {"id": "device1"}, "id": "fault1", "dateTime": "2026-02-13T12:00:00Z"}],
             # Trip Result for device1
             [{"id": "trip1", "distance": 15000, "start": "2026-02-08T10:00:00Z", "stop": "2026-02-08T10:30:00Z"}] 
         ]
