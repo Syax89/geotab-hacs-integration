@@ -19,6 +19,24 @@ def mock_geotab_api():
         instance.get.return_value = [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}]
         
         # Prepare mock results for multi_call: status, diagnostics, faults, and 1 trip
+        # Current api.py logic for call_map:
+        # 1. status
+        # 2. diag_odometer
+        # 3. diag_voltage
+        # 4. diag_fuel_level
+        # 5. diag_tire_pressure_front_left
+        # 6. diag_tire_pressure_front_right
+        # 7. diag_tire_pressure_rear_left
+        # 8. diag_tire_pressure_rear_right
+        # 9. diag_rpm
+        # 10. diag_coolant_temp
+        # 11. diag_accelerator_pos
+        # 12. diag_engine_hours
+        # 13. diag_ignition
+        # 14. diag_door_status
+        # 15. diag_seatbelt_status
+        # 16. faults
+        # 17. trip_device1
         instance.multi_call.return_value = [
             [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0}], # Status
             [{"device": {"id": "device1"}, "data": 100000}], # Odometer
@@ -28,11 +46,10 @@ def mock_geotab_api():
             [{"device": {"id": "device1"}, "data": 220000}], # Tire FR
             [{"device": {"id": "device1"}, "data": 220000}], # Tire RL
             [{"device": {"id": "device1"}, "data": 220000}], # Tire RR
-            [{"device": {"id": "device1"}, "data": 5000}], # Engine Hours
             [{"device": {"id": "device1"}, "data": 2500}], # RPM
             [{"device": {"id": "device1"}, "data": 90}], # Coolant
             [{"device": {"id": "device1"}, "data": 15}], # Accelerator
-            [{"device": {"id": "device1"}, "data": 500000}], # Engine Hours (repeated/placeholder)
+            [{"device": {"id": "device1"}, "data": 5000}], # Engine Hours
             [{"device": {"id": "device1"}, "data": 1}], # Ignition
             [{"device": {"id": "device1"}, "data": 0}], # Door
             [{"device": {"id": "device1"}, "data": 0}], # Seatbelt
