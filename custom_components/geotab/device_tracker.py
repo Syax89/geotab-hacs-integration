@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from homeassistant.components.device_tracker import SourceType, TrackerEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
     DataUpdateCoordinator,
 )
 
 from .const import DOMAIN
+from .entity import GeotabEntity
 
 
 async def async_setup_entry(
@@ -20,27 +20,37 @@ async def async_setup_entry(
 ) -> None:
     """Set up the Geotab device tracker."""
     coordinator: DataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        GeotabDeviceTracker(coordinator, device_id) for device_id in coordinator.data
-    )
+    
+    # Track which devices we've already added entities for
+    known_devices = set()
+
+    @callback
+    def async_add_new_entities():
+        """Add new entities when a new device is discovered."""
+        new_entities = []
+        for device_id in coordinator.data:
+            if device_id not in known_devices:
+                new_entities.append(GeotabDeviceTracker(coordinator, device_id))
+                known_devices.add(device_id)
+        
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initial entities
+    async_add_new_entities()
+    
+    # Listen for coordinator updates to add new devices dynamically
+    entry.async_on_unload(coordinator.async_add_listener(async_add_new_entities))
 
 
-class GeotabDeviceTracker(CoordinatorEntity, TrackerEntity):
+class GeotabDeviceTracker(GeotabEntity, TrackerEntity):
     """A Geotab device tracker."""
-
-    _attr_has_entity_name = True
 
     def __init__(self, coordinator: DataUpdateCoordinator, device_id: str) -> None:
         """Initialize the device tracker."""
-        super().__init__(coordinator)
-        self._device_id = device_id
+        super().__init__(coordinator, device_id)
         self._attr_unique_id = f"{device_id}_tracker"
         self._attr_name = "Location"
-
-    @property
-    def device_data(self) -> dict:
-        """Return the device data for this entity."""
-        return self.coordinator.data[self._device_id]
 
     @property
     def latitude(self) -> float | None:
@@ -56,30 +66,6 @@ class GeotabDeviceTracker(CoordinatorEntity, TrackerEntity):
     def source_type(self) -> SourceType:
         """Return the source type, eg gps or router, of the device."""
         return SourceType.GPS
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device info."""
-        # Retrieve database from the config entry stored in the coordinator
-        database = self.coordinator.config_entry.data.get("database", "Unknown")
-
-        # Build a configuration URL. Usually it's my.geotab.com/database
-        # If the database looks like a domain (has a dot), use it directly, otherwise assume my.geotab.com
-        if "." in database:
-            config_url = f"https://{database}"
-        else:
-            config_url = f"https://my.geotab.com/{database}"
-
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._device_id)},
-            name=self.device_data.get("name"),
-            manufacturer="Geotab",
-            model=f"{self.device_data.get('deviceType')} ({database})",
-            hw_version=self.device_data.get("deviceType"),
-            sw_version=self.device_data.get("version"),
-            serial_number=self.device_data.get("serialNumber"),
-            configuration_url=config_url,
-        )
 
     @property
     def extra_state_attributes(self) -> dict[str, any] | None:

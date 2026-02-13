@@ -12,16 +12,16 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
     DataUpdateCoordinator,
 )
 
 from .const import DOMAIN
+from .entity import GeotabEntity
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -85,18 +85,32 @@ async def async_setup_entry(
     """Set up the Geotab binary sensor platform."""
     coordinator: DataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    entities = [
-        GeotabBinarySensor(coordinator, device_id, description)
-        for device_id in coordinator.data
-        for description in BINARY_SENSORS
-    ]
-    async_add_entities(entities)
+    # Track which devices we've already added entities for
+    known_devices = set()
+
+    @callback
+    def async_add_new_entities():
+        """Add new entities when a new device is discovered."""
+        new_entities = []
+        for device_id in coordinator.data:
+            if device_id not in known_devices:
+                for description in BINARY_SENSORS:
+                    new_entities.append(GeotabBinarySensor(coordinator, device_id, description))
+                known_devices.add(device_id)
+        
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initial entities
+    async_add_new_entities()
+    
+    # Listen for coordinator updates to add new devices dynamically
+    entry.async_on_unload(coordinator.async_add_listener(async_add_new_entities))
 
 
-class GeotabBinarySensor(CoordinatorEntity, BinarySensorEntity):
+class GeotabBinarySensor(GeotabEntity, BinarySensorEntity):
     """A Geotab binary sensor."""
 
-    _attr_has_entity_name = True
     entity_description: GeotabBinarySensorEntityDescription
 
     def __init__(
@@ -106,35 +120,9 @@ class GeotabBinarySensor(CoordinatorEntity, BinarySensorEntity):
         description: GeotabBinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary sensor."""
-        super().__init__(coordinator)
-        self._device_id = device_id
+        super().__init__(coordinator, device_id)
         self.entity_description = description
         self._attr_unique_id = f"{device_id}_{description.key}"
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device info."""
-        database = self.coordinator.config_entry.data.get("database", "Unknown")
-        if "." in database:
-            config_url = f"https://{database}"
-        else:
-            config_url = f"https://my.geotab.com/{database}"
-
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._device_id)},
-            name=self.device_data.get("name"),
-            manufacturer="Geotab",
-            model=f"{self.device_data.get('deviceType')} ({database})",
-            hw_version=self.device_data.get("deviceType"),
-            sw_version=self.device_data.get("version"),
-            serial_number=self.device_data.get("serialNumber"),
-            configuration_url=config_url,
-        )
-
-    @property
-    def device_data(self) -> dict:
-        """Return the device data for this entity."""
-        return self.coordinator.data[self._device_id]
 
     @property
     def is_on(self) -> bool:
