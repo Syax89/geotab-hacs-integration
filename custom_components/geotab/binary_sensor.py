@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -130,7 +131,7 @@ class GeotabBinarySensor(GeotabEntity, BinarySensorEntity):
         return self.entity_description.is_on_fn(self.device_data)
 
     @property
-    def extra_state_attributes(self) -> dict[str, any] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return extra state attributes."""
         if self.entity_description.attr_fn:
             return self.entity_description.attr_fn(self.device_data)

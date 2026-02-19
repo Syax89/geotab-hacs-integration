@@ -17,6 +17,9 @@
       "invalid_auth": "Nome utente, password o database non validi",
       "min_scan_interval": "L'intervallo di scansione deve essere di almeno 30 secondi",
       "unknown": "Errore imprevisto"
+    },
+    "abort": {
+      "already_configured": "Account già configurato."
     }
   }
 }

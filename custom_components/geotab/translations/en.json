@@ -17,6 +17,9 @@
       "invalid_auth": "Invalid username, password, or database",
       "min_scan_interval": "Scan interval must be at least 30 seconds",
       "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Account already configured."
     }
   }
 }

@@ -23,7 +23,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required("username"): str,
         vol.Required("password"): str,
         vol.Required("database"): str,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.Coerce(int),
     }
 )
 
@@ -47,39 +47,38 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            try:
-                # Security: Validate scan interval (min 30s to prevent rate limiting issues)
-                if user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL) < 30:
-                    errors[CONF_SCAN_INTERVAL] = "min_scan_interval"
-                    raise ValueError("Scan interval too short")
-
-                session = async_get_clientsession(self.hass)
-                client = GeotabApiClient(
-                    username=user_input["username"],
-                    password=user_input["password"],
-                    database=user_input["database"],
-                    session=session,
-                )
-                await client.async_authenticate()
-            except InvalidAuth:
-                errors["base"] = "invalid_auth"
-            except ApiError:
-                errors["base"] = "cannot_connect"
-            except Exception as err:  # pylint: disable=broad-except-clause
-                # Security: Avoid logging the entire user_input dict which contains the password
-                _LOGGER.error(
-                    "Unexpected exception during config flow: %s", type(err).__name__
-                )
-                if "base" not in errors:
-                    errors["base"] = "unknown"
+            # Validate scan interval before attempting API calls to avoid
+            # the ValueError falling into the generic except block.
+            if user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL) < 30:
+                errors[CONF_SCAN_INTERVAL] = "min_scan_interval"
             else:
-                unique_id = f"{user_input['username'].lower()}_{user_input['database'].lower()}"
-                await self.async_set_unique_id(unique_id)
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=f"{user_input['username']} ({user_input['database']})", 
-                    data=user_input
-                )
+                try:
+                    session = async_get_clientsession(self.hass)
+                    client = GeotabApiClient(
+                        username=user_input["username"],
+                        password=user_input["password"],
+                        database=user_input["database"],
+                        session=session,
+                    )
+                    await client.async_authenticate()
+                except InvalidAuth:
+                    errors["base"] = "invalid_auth"
+                except ApiError:
+                    errors["base"] = "cannot_connect"
+                except Exception as err:  # pylint: disable=broad-except-clause
+                    # Security: Avoid logging the entire user_input dict which contains the password
+                    _LOGGER.error(
+                        "Unexpected exception during config flow: %s", type(err).__name__
+                    )
+                    errors["base"] = "unknown"
+                else:
+                    unique_id = f"{user_input['username'].lower()}_{user_input['database'].lower()}"
+                    await self.async_set_unique_id(unique_id)
+                    self._abort_if_unique_id_configured()
+                    return self.async_create_entry(
+                        title=f"{user_input['username']} ({user_input['database']})",
+                        data=user_input,
+                    )
 
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors

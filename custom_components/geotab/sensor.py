@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -95,7 +96,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("tire_pressure_front_left", 0) * PA_TO_PSI,
+        value_fn=lambda data: (data.get("tire_pressure_front_left") or 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_right",
@@ -105,7 +106,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("tire_pressure_front_right", 0) * PA_TO_PSI,
+        value_fn=lambda data: (data.get("tire_pressure_front_right") or 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_left",
@@ -115,7 +116,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("tire_pressure_rear_left", 0) * PA_TO_PSI,
+        value_fn=lambda data: (data.get("tire_pressure_rear_left") or 0) * PA_TO_PSI,
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_right",
@@ -125,7 +126,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("tire_pressure_rear_right", 0) * PA_TO_PSI,
+        value_fn=lambda data: (data.get("tire_pressure_rear_right") or 0) * PA_TO_PSI,
     ),
     # --- Engine & Technical ---
     GeotabSensorEntityDescription(
@@ -219,8 +220,7 @@ async def async_setup_entry(
         for device_id in coordinator.data:
             if device_id not in known_devices:
                 for description in SENSORS:
-                    if description.value_fn(coordinator.data[device_id]) is not None:
-                        new_entities.append(GeotabSensor(coordinator, device_id, description))
+                    new_entities.append(GeotabSensor(coordinator, device_id, description))
                 known_devices.add(device_id)
         
         if new_entities:
@@ -259,7 +259,7 @@ class GeotabSensor(GeotabEntity, SensorEntity):
         return value
 
     @property
-    def extra_state_attributes(self) -> dict[str, any] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return extra state attributes."""
         if self.entity_description.key == "last_trip_distance":
             if trip := self.device_data.get("last_trip"):
