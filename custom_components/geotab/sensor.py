@@ -132,12 +132,15 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     GeotabSensorEntityDescription(
         key="engine_hours",
         name="Engine Hours",
-        icon="mdi:engine-timer",
+        icon="mdi:timer-outline",
         native_unit_of_measurement=UnitOfTime.HOURS,
-        device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("engine_hours"),
+        value_fn=lambda data: (
+            data.get("engine_hours", 0) / 3600
+            if data.get("engine_hours") is not None
+            else None
+        ),
     ),
     GeotabSensorEntityDescription(
         key="rpm",

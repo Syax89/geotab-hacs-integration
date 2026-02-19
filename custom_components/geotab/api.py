@@ -121,7 +121,8 @@ class GeotabApiClient:
                         {
                             "typeName": "Trip",
                             "search": {"deviceSearch": {"id": device_id}},
-                            "resultsLimit": 1,
+                            # Get the most recent trip by requesting a few and sorting in Python
+                            "resultsLimit": 5,
                         },
                     )
                 )
@@ -150,8 +151,12 @@ class GeotabApiClient:
                     fault_results = result
                 elif key.startswith("trip_"):
                     trip_device_id = key[5:]
-                    if result:
-                        trip_results_dict[trip_device_id] = result[0]
+                    if isinstance(result, list) and result:
+                        # Sort by start dateTime descending to find the latest trip
+                        sorted_trips = sorted(
+                            result, key=lambda x: x.get("start", ""), reverse=True
+                        )
+                        trip_results_dict[trip_device_id] = sorted_trips[0]
 
             # Map status info by device ID
             status_map = {
