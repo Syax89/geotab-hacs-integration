@@ -54,8 +54,11 @@ async def test_config_flow_boundary_scan_interval(hass):
                 CONF_SCAN_INTERVAL: 30,
             },
         )
+        # Wait for the scheduled entry setup to complete while mock is active,
+        # preventing the real async_setup_entry from spawning threads.
+        await hass.async_block_till_done()
 
-    assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
+        assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
 
 
 @pytest.mark.asyncio
@@ -81,11 +84,12 @@ async def test_config_flow_success(hass):
                 CONF_SCAN_INTERVAL: 60,
             },
         )
+        await hass.async_block_till_done()
 
-    assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
-    assert result["title"] == "test@user.com (test-db)"
-    assert result["data"]["username"] == "test@user.com"
-    assert result["data"]["database"] == "test-db"
+        assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
+        assert result["title"] == "test@user.com (test-db)"
+        assert result["data"]["username"] == "test@user.com"
+        assert result["data"]["database"] == "test-db"
 
 
 @pytest.mark.asyncio
