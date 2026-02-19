@@ -57,15 +57,6 @@ async def test_config_flow_boundary_scan_interval(hass):
         await hass.async_block_till_done()
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
-        # Clean up the entry to avoid lingering tasks
-        if result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY:
-            await hass.config_entries.async_unload(result["result"].entry_id)
-            await hass.async_block_till_done()
-    
-    # Force ignore lingering tasks for this test in CI environments
-    # as the Thread-9 (_run_safe_shutdown_loop) is outside our control.
-    # This is a last resort for CI stability.
-    await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
@@ -94,16 +85,9 @@ async def test_config_flow_success(hass):
         await hass.async_block_till_done()
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
-        # Clean up the entry to avoid lingering tasks
-        if result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY:
-            await hass.config_entries.async_unload(result["result"].entry_id)
-            await hass.async_block_till_done()
-
         assert result["title"] == "test@user.com (test-db)"
         assert result["data"]["username"] == "test@user.com"
         assert result["data"]["database"] == "test-db"
-    
-    await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
@@ -132,7 +116,6 @@ async def test_config_flow_invalid_auth(hass):
 
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"]["base"] == "invalid_auth"
-    await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
@@ -161,7 +144,6 @@ async def test_config_flow_cannot_connect(hass):
 
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"]["base"] == "cannot_connect"
-    await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
