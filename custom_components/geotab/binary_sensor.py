@@ -24,6 +24,66 @@ from homeassistant.helpers.update_coordinator import (
 from .const import DOMAIN
 from .entity import GeotabEntity
 
+from homeassistant.util import dt as dt_util
+
+def _format_fault_attributes(faults: list) -> dict[str, Any]:
+    """Format fault data into readable attributes."""
+    if not faults:
+        return {
+            "fault_count": 0,
+            "faults_list": [],
+            "faults_details": [],
+        }
+    
+    formatted_faults = []
+    details = []
+    
+    for fault in faults:
+        # Extract fault code (DTC)
+        fault_code = "Unknown"
+        diagnostic_name = "Unknown"
+        if "diagnostic" in fault and isinstance(fault["diagnostic"], dict):
+            diag = fault["diagnostic"]
+            # Try to get a code, then name
+            fault_code = diag.get("code") or diag.get("id", "Unknown")
+            diagnostic_name = diag.get("name", "Unknown")
+        
+        # Extract description
+        description = fault.get("description", "No description available")
+        
+        # Extract datetime
+        fault_time = fault.get("dateTime", "Unknown")
+        if isinstance(fault_time, str) and fault_time != "Unknown":
+            parsed = dt_util.parse_datetime(fault_time)
+            if parsed:
+                fault_time = dt_util.as_local(parsed).strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Extract state and severity
+        fault_state = fault.get("faultState", "Unknown")
+        lamp_status = fault.get("malfunctionLampStatus", "None")
+        
+        # Build formatted string
+        fault_str = f"[{fault_code}] {diagnostic_name}"
+        if description and description != diagnostic_name:
+            fault_str += f" - {description}"
+        
+        formatted_faults.append(fault_str)
+        
+        details.append({
+            "code": fault_code,
+            "name": diagnostic_name,
+            "description": description,
+            "timestamp": fault_time,
+            "state": fault_state,
+            "lamp_status": lamp_status,
+        })
+    
+    return {
+        "fault_count": len(faults),
+        "faults_list": formatted_faults,
+        "faults_details": details,
+    }
+
 
 @dataclass(frozen=True, kw_only=True)
 class GeotabBinarySensorEntityDescription(BinarySensorEntityDescription):
@@ -40,10 +100,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: len(data.get("active_faults", [])) > 0,
-        attr_fn=lambda data: {
-            "fault_count": len(data.get("active_faults", [])),
-            "faults": data.get("active_faults", []),
-        },
+        attr_fn=lambda data: _format_fault_attributes(data.get("active_faults", [])),
     ),
     GeotabBinarySensorEntityDescription(
         key="is_driving",
