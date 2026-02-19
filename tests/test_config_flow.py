@@ -36,9 +36,7 @@ async def test_config_flow_boundary_scan_interval(hass):
     """Test that scan_interval=30 (boundary) is accepted."""
     with patch(
         "custom_components.geotab.config_flow.GeotabApiClient"
-    ) as mock_client_cls, patch(
-        "custom_components.geotab.async_setup_entry", return_value=True
-    ):
+    ) as mock_client_cls:
         mock_client = mock_client_cls.return_value
         mock_client.async_authenticate = AsyncMock()
 
@@ -54,8 +52,6 @@ async def test_config_flow_boundary_scan_interval(hass):
                 CONF_SCAN_INTERVAL: 30,
             },
         )
-        # Wait for the scheduled entry setup to complete while mock is active,
-        # preventing the real async_setup_entry from spawning threads.
         await hass.async_block_till_done()
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
@@ -69,9 +65,7 @@ async def test_config_flow_success(hass):
     """Test a successful config flow."""
     with patch(
         "custom_components.geotab.config_flow.GeotabApiClient"
-    ) as mock_client_cls, patch(
-        "custom_components.geotab.async_setup_entry", return_value=True
-    ):
+    ) as mock_client_cls:
         mock_client = mock_client_cls.return_value
         mock_client.async_authenticate = AsyncMock()
 
