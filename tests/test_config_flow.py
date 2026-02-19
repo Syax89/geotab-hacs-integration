@@ -125,6 +125,7 @@ async def test_config_flow_invalid_auth(hass):
 
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"]["base"] == "invalid_auth"
+    await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
@@ -153,6 +154,7 @@ async def test_config_flow_cannot_connect(hass):
 
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"]["base"] == "cannot_connect"
+    await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
