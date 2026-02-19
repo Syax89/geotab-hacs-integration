@@ -49,14 +49,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         except Exception as err:
             raise UpdateFailed(f"Unexpected error: {err}") from err
 
+    scan_interval = entry.options.get(
+        CONF_SCAN_INTERVAL,
+        entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+    )
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name="geotab_devices",
         update_method=async_update_data,
-        update_interval=timedelta(
-            seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-        ),
+        update_interval=timedelta(seconds=scan_interval),
     )
 
     # Fetch initial data so we have our devices ready
