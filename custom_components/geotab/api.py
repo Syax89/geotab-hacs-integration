@@ -92,7 +92,8 @@ class GeotabApiClient:
                         {
                             "typeName": "StatusData",
                             "search": {"diagnosticSearch": {"id": diagnostic_id}},
-                            "resultsLimit": len(devices),
+                            # Get enough records to increase the chance of getting one per device
+                            "resultsLimit": len(devices) * 2,
                         },
                     )
                 )
@@ -162,7 +163,14 @@ class GeotabApiClient:
             # Map diagnostic data by device ID and key
             diagnostics_map = defaultdict(dict)
             for diag_key, items in diagnostic_results_dict.items():
-                for item in items:
+                if not isinstance(items, list):
+                    continue
+                # Sort by dateTime descending to pick the newest one for each device
+                # This prevents picking a stale record if the API returns mixed results.
+                sorted_items = sorted(
+                    items, key=lambda x: x.get("dateTime", ""), reverse=True
+                )
+                for item in sorted_items:
                     if "data" in item and "device" in item:
                         device_id = item["device"]["id"]
                         if diag_key not in diagnostics_map[device_id]:
@@ -181,20 +189,29 @@ class GeotabApiClient:
                 if not device_id:
                     continue
 
-                # Merge device info, status, diagnostics, and trip
+                # Merge device info, diagnostics, and trip data
                 data = device.copy()
-                if status_info := status_map.get(device_id):
-                    data.update(status_info)
-
+                
+                # 1. Update with diagnostics (might be slightly delayed)
                 if device_id in diagnostics_map:
                     data.update(diagnostics_map[device_id])
                 
+                # 2. Add fault data
                 if device_id in fault_map:
                     data["active_faults"] = fault_map[device_id]
                 
+                # 3. Add trip data
                 if trip_data := trip_results_dict.get(device_id):
                     data["last_trip"] = trip_data
 
+                # 4. Final update with status info (DeviceStatusInfo), the most real-time state
+                # If "isIgnitionOn" is present, we map it to "ignition" for consistency
+                # in sensors like RPM that depend on it.
+                if status_info := status_map.get(device_id):
+                    data.update(status_info)
+                    if "isIgnitionOn" in status_info:
+                        data["ignition"] = 1 if status_info["isIgnitionOn"] else 0
+                
                 combined_data[device_id] = data
 
             return combined_data
