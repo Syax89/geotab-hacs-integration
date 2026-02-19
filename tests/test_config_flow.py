@@ -59,6 +59,9 @@ async def test_config_flow_boundary_scan_interval(hass):
         await hass.async_block_till_done()
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
+        # Clean up the entry to avoid lingering tasks
+        await hass.config_entries.async_unload(result["result"].entry_id)
+        await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
@@ -87,6 +90,10 @@ async def test_config_flow_success(hass):
         await hass.async_block_till_done()
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
+        # Clean up the entry to avoid lingering tasks
+        await hass.config_entries.async_unload(result["result"].entry_id)
+        await hass.async_block_till_done()
+
         assert result["title"] == "test@user.com (test-db)"
         assert result["data"]["username"] == "test@user.com"
         assert result["data"]["database"] == "test-db"
