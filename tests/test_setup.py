@@ -10,7 +10,7 @@ from custom_components.geotab.const import DOMAIN
 def _make_coordinator(data=None):
     """Create a mock coordinator with optional data override."""
     coordinator = MagicMock()
-    coordinator.data = data or {
+    coordinator.data = data if data is not None else {
         "device1": {
             "id": "device1",
             "name": "Test Vehicle",

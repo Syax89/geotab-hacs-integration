@@ -24,7 +24,7 @@ async def test_api_authenticate(mock_geotab_api):
 @pytest.mark.asyncio
 async def test_api_authenticate_invalid_auth(mock_geotab_api):
     """Test that InvalidAuth is raised for bad credentials."""
-    mock_geotab_api.authenticate.side_effect = AuthenticationException
+    mock_geotab_api.authenticate.side_effect = AuthenticationException("user", "db", "server")
     session = MagicMock()
     client = GeotabApiClient("user", "wrong_pass", "db", session)
     with pytest.raises(InvalidAuth):
