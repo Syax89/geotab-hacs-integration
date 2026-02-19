@@ -36,7 +36,9 @@ async def test_config_flow_boundary_scan_interval(hass):
     """Test that scan_interval=30 (boundary) is accepted."""
     with patch(
         "custom_components.geotab.config_flow.GeotabApiClient"
-    ) as mock_client_cls:
+    ) as mock_client_cls, patch(
+        "custom_components.geotab.async_setup_entry", return_value=True
+    ):
         mock_client = mock_client_cls.return_value
         mock_client.async_authenticate = AsyncMock()
 
@@ -56,8 +58,9 @@ async def test_config_flow_boundary_scan_interval(hass):
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
         # Clean up the entry to avoid lingering tasks
-        await hass.config_entries.async_unload(result["result"].entry_id)
-        await hass.async_block_till_done()
+        if result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY:
+            await hass.config_entries.async_unload(result["result"].entry_id)
+            await hass.async_block_till_done()
 
 
 @pytest.mark.asyncio
@@ -65,7 +68,9 @@ async def test_config_flow_success(hass):
     """Test a successful config flow."""
     with patch(
         "custom_components.geotab.config_flow.GeotabApiClient"
-    ) as mock_client_cls:
+    ) as mock_client_cls, patch(
+        "custom_components.geotab.async_setup_entry", return_value=True
+    ):
         mock_client = mock_client_cls.return_value
         mock_client.async_authenticate = AsyncMock()
 
@@ -85,8 +90,9 @@ async def test_config_flow_success(hass):
 
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
         # Clean up the entry to avoid lingering tasks
-        await hass.config_entries.async_unload(result["result"].entry_id)
-        await hass.async_block_till_done()
+        if result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY:
+            await hass.config_entries.async_unload(result["result"].entry_id)
+            await hass.async_block_till_done()
 
         assert result["title"] == "test@user.com (test-db)"
         assert result["data"]["username"] == "test@user.com"
