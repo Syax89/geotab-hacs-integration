@@ -9,6 +9,7 @@ PA_TO_PSI = 0.000145038
 # Define the diagnostics we want to fetch
 DIAGNOSTICS_TO_FETCH = {
     "odometer": "DiagnosticOdometerAdjustmentId",
+    "odometer_raw": "DiagnosticOdometerId",
     "voltage": "DiagnosticGoDeviceVoltageId",
     "fuel_level": "DiagnosticFuelLevelId",
     "tire_pressure_front_left": "DiagnosticTirePressureFrontLeftId",
@@ -19,6 +20,7 @@ DIAGNOSTICS_TO_FETCH = {
     "coolant_temp": "DiagnosticEngineCoolantTemperatureId",
     "accelerator_pos": "DiagnosticAcceleratorPedalPositionId",
     "engine_hours": "DiagnosticEngineHoursAdjustmentId",
+    "engine_hours_raw": "DiagnosticEngineHoursId",
     "ignition": "DiagnosticIgnitionId",
     "door_status": "DiagnosticDoorAjarId",  # Common ID for any door being ajar
     "seatbelt_status": "DiagnosticDriverSeatbeltId",

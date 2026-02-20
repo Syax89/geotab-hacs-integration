@@ -152,11 +152,17 @@ class GeotabApiClient:
                 elif key.startswith("trip_"):
                     trip_device_id = key[5:]
                     if isinstance(result, list) and result:
-                        # Sort by start dateTime descending to find the latest trip
-                        sorted_trips = sorted(
-                            result, key=lambda x: x.get("start", ""), reverse=True
-                        )
-                        trip_results_dict[trip_device_id] = sorted_trips[0]
+                        # Filter trips with distance > 0 to avoid empty trips
+                        real_trips = [t for t in result if t.get("distance", 0) > 0]
+                        if real_trips:
+                            # Sort by start dateTime descending to find the latest trip
+                            sorted_trips = sorted(
+                                real_trips, key=lambda x: x.get("start", ""), reverse=True
+                            )
+                            trip_results_dict[trip_device_id] = sorted_trips[0]
+                        else:
+                            # Fallback if no real trips found (e.g., all distance 0)
+                            trip_results_dict[trip_device_id] = result[0]
 
             # Map status info by device ID
             status_map = {
@@ -205,7 +211,16 @@ class GeotabApiClient:
                 
                 # 1. Update with diagnostics (might be slightly delayed)
                 if device_id in diagnostics_map:
-                    data.update(diagnostics_map[device_id])
+                    diag_data = diagnostics_map[device_id]
+                    data.update(diag_data)
+                    
+                    # Fallback for odometer (if adjustment is None/0 but raw exists)
+                    if diag_data.get("odometer") is None and "odometer_raw" in diag_data:
+                        data["odometer"] = diag_data["odometer_raw"]
+                    
+                    # Fallback for engine_hours
+                    if diag_data.get("engine_hours") is None and "engine_hours_raw" in diag_data:
+                        data["engine_hours"] = diag_data["engine_hours_raw"]
                 
                 # 2. Add fault data
                 if device_id in fault_map:
@@ -214,14 +229,25 @@ class GeotabApiClient:
                 # 3. Add trip data
                 if trip_data := trip_results_dict.get(device_id):
                     data["last_trip"] = trip_data
+                    
+                    # Final fallback for engine_hours from last trip data
+                    if data.get("engine_hours") is None and "engineHours" in trip_data:
+                        data["engine_hours"] = trip_data["engineHours"]
 
                 # 4. Final update with status info (DeviceStatusInfo), the most real-time state
                 # If "isIgnitionOn" is present, we map it to "ignition" for consistency
                 # in sensors like RPM that depend on it.
                 if status_info := status_map.get(device_id):
+                    # Cache ignition from StatusData as fallback if isIgnitionOn is None
+                    status_data_ignition = data.get("ignition")
+                    
                     data.update(status_info)
-                    if "isIgnitionOn" in status_info:
+                    
+                    if status_info.get("isIgnitionOn") is not None:
                         data["ignition"] = 1 if status_info["isIgnitionOn"] else 0
+                    elif status_data_ignition is not None:
+                        # Fallback to DiagnosticIgnitionId
+                        data["ignition"] = status_data_ignition
                 
                 combined_data[device_id] = data
 
