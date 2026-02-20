@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.9] - 2026-02-20
+
+### Added
+- Per-sensor `suggested_display_precision` so HA displays the right number of
+  decimal places without discarding precision in the stored value
+- Circuit breaker: after 5 consecutive API failures updates pause for 300 s
+  before retrying, preventing hammering an unavailable API
+- `InvalidAuth` now raises `ConfigEntryAuthFailed` so HA immediately prompts
+  re-authentication instead of silently retrying
+
+### Changed
+- Fault diagnostic name mappings moved from hardcoded Italian strings in
+  `binary_sensor.py` to a centralized `FAULT_DIAGNOSTIC_NAMES` dict in
+  `const.py` (English, easy to extend)
+- All blocking mygeotab calls consolidated into a single `run_in_executor`
+  call per coordinator update (one thread instead of two, one 45 s timeout)
+- `mygeotab` dependency relaxed from `==0.9.1` to `>=0.9.1,<1.0.0` to allow
+  patch/minor updates without requiring a manual manifest bump
+
+### Fixed
+- Manifest version was stuck at `1.0.0` despite code being at `1.1.8`
+
 ## [1.1.8] - 2026-02-20
 
 ### Fixed
