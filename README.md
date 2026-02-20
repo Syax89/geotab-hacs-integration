@@ -83,7 +83,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## ⚖️ License
 
-Released under the **Apache 2.0 License**. See [LICENSE](LICENSE) for details.
+Released under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 ---
 
