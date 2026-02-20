@@ -186,7 +186,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: (
-            data.get("last_trip", {}).get("distance", 0) / 1000
+            data.get("last_trip", {}).get("distance")
             if data.get("last_trip")
             else None
         ),

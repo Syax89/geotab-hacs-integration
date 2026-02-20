@@ -1,5 +1,4 @@
 """Binary sensor platform for Geotab."""
-
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -18,6 +17,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
     DataUpdateCoordinator,
 )
 
@@ -25,6 +25,7 @@ from .const import DOMAIN
 from .entity import GeotabEntity
 
 from homeassistant.util import dt as dt_util
+
 
 def _format_fault_attributes(faults: list) -> dict[str, Any]:
     """Format fault data into readable attributes."""
@@ -39,17 +40,38 @@ def _format_fault_attributes(faults: list) -> dict[str, Any]:
     details = []
     
     for fault in faults:
-        # Extract fault code (DTC)
-        fault_code = "Unknown"
+        # Extract fault code - FaultData returns diagnostic as ID object
+        diag_id = "Unknown"
+        fault_code = "N/A"
         diagnostic_name = "Unknown"
+        
         if "diagnostic" in fault and isinstance(fault["diagnostic"], dict):
-            diag = fault["diagnostic"]
-            # Try to get a code, then name
-            fault_code = diag.get("code") or diag.get("id", "Unknown")
-            diagnostic_name = diag.get("name", "Unknown")
+            diag_id = fault["diagnostic"].get("id", "Unknown")
+            # Extract readable name from ID
+            diagnostic_name = diag_id.replace("Diagnostic", "").replace("Id", " ").strip()
+            if "DeviceHasBeenUnplugged" in diag_id:
+                diagnostic_name = "Dispositivo scollegato"
+                fault_code = "136"
+            elif "RestartedBecauseAllPower" in diag_id:
+                diagnostic_name = "Dispositivo riavviato - alimentazione rimossa"
+                fault_code = "130"
+            elif "LowVoltage" in diag_id:
+                diagnostic_name = "Tensione batteria bassa"
+                fault_code = "131"
+            elif "FirmwareUpdate" in diag_id:
+                diagnostic_name = "Aggiornamento firmware"
+                fault_code = "132"
+            elif "InternalWatchdog" in diag_id:
+                diagnostic_name = "Watchdog interno"
+                fault_code = "133"
+            elif "InternalReset" in diag_id:
+                diagnostic_name = "Reset interno"
+                fault_code = "134"
         
         # Extract description
-        description = fault.get("description", "No description available")
+        description = fault.get("description", diagnostic_name)
+        if not description or description == "N/A":
+            description = diagnostic_name
         
         # Extract datetime
         fault_time = fault.get("dateTime", "Unknown")
@@ -58,19 +80,25 @@ def _format_fault_attributes(faults: list) -> dict[str, Any]:
             if parsed:
                 fault_time = dt_util.as_local(parsed).strftime("%Y-%m-%d %H:%M:%S")
         
-        # Extract state and severity
+        # Extract state and severity from lamp status
         fault_state = fault.get("faultState", "Unknown")
-        lamp_status = fault.get("malfunctionLampStatus", "None")
+        lamp_status = "None"
+        if fault.get("amberWarningLamp"):
+            lamp_status = "Amber Warning"
+        elif fault.get("redStopLamp"):
+            lamp_status = "Red Stop"
+        elif fault.get("protectWarningLamp"):
+            lamp_status = "Protect"
+        elif fault.get("malfunctionLamp"):
+            lamp_status = "Malfunction"
         
         # Build formatted string
         fault_str = f"[{fault_code}] {diagnostic_name}"
-        if description and description != diagnostic_name:
-            fault_str += f" - {description}"
-        
         formatted_faults.append(fault_str)
         
         details.append({
             "code": fault_code,
+            "diagnostic_id": diag_id,
             "name": diagnostic_name,
             "description": description,
             "timestamp": fault_time,
@@ -84,14 +112,11 @@ def _format_fault_attributes(faults: list) -> dict[str, Any]:
         "faults_details": details,
     }
 
-
 @dataclass(frozen=True, kw_only=True)
 class GeotabBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Describes a Geotab binary sensor entity."""
-
     is_on_fn: Callable[[dict], bool]
     attr_fn: Callable[[dict], dict[str, StateType]] | None = None
-
 
 BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
     GeotabBinarySensorEntityDescription(
@@ -136,16 +161,15 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
     ),
 )
 
-
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up the Geotab binary sensor platform."""
     coordinator: DataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-
+    
     # Track which devices we've already added entities for
     known_devices = set()
-
+    
     @callback
     def async_add_new_entities():
         """Add new entities when a new device is discovered."""
@@ -155,10 +179,9 @@ async def async_setup_entry(
                 for description in BINARY_SENSORS:
                     new_entities.append(GeotabBinarySensor(coordinator, device_id, description))
                 known_devices.add(device_id)
-        
         if new_entities:
             async_add_entities(new_entities)
-
+    
     # Add initial entities
     async_add_new_entities()
     
@@ -168,9 +191,9 @@ async def async_setup_entry(
 
 class GeotabBinarySensor(GeotabEntity, BinarySensorEntity):
     """A Geotab binary sensor."""
-
+    
     entity_description: GeotabBinarySensorEntityDescription
-
+    
     def __init__(
         self,
         coordinator: DataUpdateCoordinator,
@@ -180,16 +203,4 @@ class GeotabBinarySensor(GeotabEntity, BinarySensorEntity):
         """Initialize the binary sensor."""
         super().__init__(coordinator, device_id)
         self.entity_description = description
-        self._attr_unique_id = f"{device_id}_{description.key}"
-
-    @property
-    def is_on(self) -> bool:
-        """Return true if the binary sensor is on."""
-        return self.entity_description.is_on_fn(self.device_data)
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Return extra state attributes."""
-        if self.entity_description.attr_fn:
-            return self.entity_description.attr_fn(self.device_data)
-        return None
+        self._attr_unique_id = f"{device_id}_{description
