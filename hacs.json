@@ -1,4 +1,6 @@
 {
   "name": "Geotab",
-  "render_readme": true
+  "render_readme": true,
+  "homepage": "https://github.com/Syax89/geotab-hacs-integration",
+  "hacs": "1.32.0"
 }
