@@ -3,6 +3,16 @@
 DOMAIN = "geotab"
 DEFAULT_SCAN_INTERVAL = 60
 
+# Mapping of diagnostic ID substrings to human-readable fault info (English)
+FAULT_DIAGNOSTIC_NAMES: dict[str, dict[str, str]] = {
+    "DeviceHasBeenUnplugged": {"name": "Device Unplugged", "code": "136"},
+    "RestartedBecauseAllPower": {"name": "Device Restarted - Power Removed", "code": "130"},
+    "LowVoltage": {"name": "Low Battery Voltage", "code": "131"},
+    "FirmwareUpdate": {"name": "Firmware Update", "code": "132"},
+    "InternalWatchdog": {"name": "Internal Watchdog", "code": "133"},
+    "InternalReset": {"name": "Internal Reset", "code": "134"},
+}
+
 # Conversion factor from Pascals (Pa) to PSI
 PA_TO_PSI = 0.000145038
 
