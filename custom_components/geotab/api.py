@@ -61,78 +61,82 @@ class GeotabApiClient:
         except Exception as e:
             raise ApiError(f"An unexpected error occurred: {e}") from e
 
+    def _blocking_fetch_all(self) -> tuple[list, list, list]:
+        """Fetch device list and all multi-call data synchronously.
+
+        Intended to run inside a single executor call so the event loop
+        is only blocked once per coordinator update (one thread, one round-trip).
+        Returns (devices, results, call_map).
+        """
+        devices = self.client.get("Device")
+        if not devices:
+            return [], [], []
+
+        calls: list = []
+        call_map: list[str] = []
+
+        # Device real-time status
+        calls.append(("Get", {"typeName": "DeviceStatusInfo"}))
+        call_map.append("status")
+
+        # Diagnostics (latest per device for each diagnostic type)
+        for key, diagnostic_id in DIAGNOSTICS_TO_FETCH.items():
+            calls.append(
+                (
+                    "Get",
+                    {
+                        "typeName": "StatusData",
+                        "search": {"diagnosticSearch": {"id": diagnostic_id}},
+                        "resultsLimit": len(devices) * 2,
+                    },
+                )
+            )
+            call_map.append(f"diag_{key}")
+
+        # Active faults
+        calls.append(
+            (
+                "Get",
+                {
+                    "typeName": "FaultData",
+                    "search": {"excludeDismissed": True},
+                    "resultsLimit": len(devices) * 5,
+                },
+            )
+        )
+        call_map.append("faults")
+
+        # Latest trip per device
+        for device in devices:
+            device_id = device["id"]
+            calls.append(
+                (
+                    "Get",
+                    {
+                        "typeName": "Trip",
+                        "search": {"deviceSearch": {"id": device_id}},
+                        "resultsLimit": 5,
+                    },
+                )
+            )
+            call_map.append(f"trip_{device_id}")
+
+        results = self.client.multi_call(calls)
+        return devices, results, call_map
+
     async def async_get_full_device_data(self) -> dict[str, dict]:
         """Get combined device and status info from the API using multi-calls."""
         try:
             loop = asyncio.get_running_loop()
 
-            # 1. First, get the list of devices to know what to query for
-            def _get_devices():
-                return self.client.get("Device")
-
-            async with asyncio.timeout(10):
-                devices = await loop.run_in_executor(None, _get_devices)
+            # Single executor call: device list + multi_call in one blocking thread
+            async with asyncio.timeout(45):
+                devices, results, call_map = await loop.run_in_executor(
+                    None, self._blocking_fetch_all
+                )
 
             if not devices:
                 return {}
-
-            # 2. Build a multi-call for status, diagnostics, faults and the latest trip per device
-            calls = []
-            call_map = []
-
-            # Device Status
-            calls.append(("Get", {"typeName": "DeviceStatusInfo"}))
-            call_map.append("status")
-            
-            # Diagnostics (Latest per device for each diagnostic)
-            for key, diagnostic_id in DIAGNOSTICS_TO_FETCH.items():
-                calls.append(
-                    (
-                        "Get",
-                        {
-                            "typeName": "StatusData",
-                            "search": {"diagnosticSearch": {"id": diagnostic_id}},
-                            # Get enough records to increase the chance of getting one per device
-                            "resultsLimit": len(devices) * 2,
-                        },
-                    )
-                )
-                call_map.append(f"diag_{key}")
-            
-            # Active Faults
-            calls.append(
-                (
-                    "Get",
-                    {
-                        "typeName": "FaultData",
-                        "search": {"excludeDismissed": True},
-                        "resultsLimit": len(devices) * 5,
-                    },
-                )
-            )
-            call_map.append("faults")
-            
-            # Latest Trip for each device
-            for device in devices:
-                device_id = device["id"]
-                calls.append(
-                    (
-                        "Get",
-                        {
-                            "typeName": "Trip",
-                            "search": {"deviceSearch": {"id": device_id}},
-                            # Get the most recent trip by requesting a few and sorting in Python
-                            "resultsLimit": 5,
-                        },
-                    )
-                )
-                call_map.append(f"trip_{device_id}")
-
-            def _multi_call():
-                return self.client.multi_call(calls)
-
-            async with asyncio.timeout(30):
-                results = await loop.run_in_executor(None, _multi_call)
 
             # --- Process the results ---
             status_results = []

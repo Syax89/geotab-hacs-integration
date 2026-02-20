@@ -8,11 +8,18 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import GeotabApiClient, ApiError, InvalidAuth
-from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
+from .const import (
+    DOMAIN,
+    DEFAULT_SCAN_INTERVAL,
+    CIRCUIT_BREAKER_MAX_FAILURES,
+    CIRCUIT_BREAKER_RESET_DELAY,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,17 +44,50 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         session=session,
     )
 
+    # Circuit breaker state
+    consecutive_failures = 0
+    circuit_open_since = None
+
     # Create the DataUpdateCoordinator
     async def async_update_data():
         """Fetch data from API endpoint."""
+        nonlocal consecutive_failures, circuit_open_since
+
+        # If the circuit is open, skip the update until the reset delay has elapsed
+        if circuit_open_since is not None:
+            elapsed = (dt_util.utcnow() - circuit_open_since).total_seconds()
+            if elapsed < CIRCUIT_BREAKER_RESET_DELAY:
+                remaining = int(CIRCUIT_BREAKER_RESET_DELAY - elapsed)
+                _LOGGER.warning(
+                    "Geotab circuit breaker open, skipping update. Retrying in %ds.",
+                    remaining,
+                )
+                raise UpdateFailed(f"Circuit breaker open, retrying in {remaining}s")
+            _LOGGER.info("Geotab circuit breaker: attempting reset.")
+            circuit_open_since = None
+
         try:
-            return await client.async_get_full_device_data()
+            data = await client.async_get_full_device_data()
+            if consecutive_failures:
+                _LOGGER.info(
+                    "Geotab API recovered after %d failure(s).", consecutive_failures
+                )
+            consecutive_failures = 0
+            return data
         except InvalidAuth as err:
-            raise UpdateFailed(f"Invalid authentication: {err}") from err
-        except ApiError as err:
+            # Auth errors won't fix themselves; notify HA to prompt re-auth
+            raise ConfigEntryAuthFailed(f"Invalid authentication: {err}") from err
+        except (ApiError, Exception) as err:
+            consecutive_failures += 1
+            if consecutive_failures >= CIRCUIT_BREAKER_MAX_FAILURES:
+                circuit_open_since = dt_util.utcnow()
+                _LOGGER.error(
+                    "Geotab circuit breaker opened after %d consecutive failures. "
+                    "Pausing updates for %ds.",
+                    consecutive_failures,
+                    CIRCUIT_BREAKER_RESET_DELAY,
+                )
             raise UpdateFailed(f"Error communicating with API: {err}") from err
-        except Exception as err:
-            raise UpdateFailed(f"Unexpected error: {err}") from err
 
     scan_interval = entry.options.get(
         CONF_SCAN_INTERVAL,

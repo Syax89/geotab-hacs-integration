@@ -21,7 +21,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
+from .const import DOMAIN, FAULT_DIAGNOSTIC_NAMES
 from .entity import GeotabEntity
 
 
@@ -48,25 +48,12 @@ def _format_fault_attributes(faults: list) -> dict[str, Any]:
             # Extract readable name from ID
             diagnostic_name = diag_id.replace("Diagnostic", "").replace("Id", " ").strip()
             
-            # Known mappings for Italian
-            if "DeviceHasBeenUnplugged" in diag_id:
-                diagnostic_name = "Dispositivo scollegato"
-                fault_code = "136"
-            elif "RestartedBecauseAllPower" in diag_id:
-                diagnostic_name = "Dispositivo riavviato - alimentazione rimossa"
-                fault_code = "130"
-            elif "LowVoltage" in diag_id:
-                diagnostic_name = "Tensione batteria bassa"
-                fault_code = "131"
-            elif "FirmwareUpdate" in diag_id:
-                diagnostic_name = "Aggiornamento firmware"
-                fault_code = "132"
-            elif "InternalWatchdog" in diag_id:
-                diagnostic_name = "Watchdog interno"
-                fault_code = "133"
-            elif "InternalReset" in diag_id:
-                diagnostic_name = "Reset interno"
-                fault_code = "134"
+            # Known mappings (defined in const.py)
+            for key, info in FAULT_DIAGNOSTIC_NAMES.items():
+                if key in diag_id:
+                    diagnostic_name = info["name"]
+                    fault_code = info["code"]
+                    break
 
         # Extract description
         description = fault.get("description", diagnostic_name)
