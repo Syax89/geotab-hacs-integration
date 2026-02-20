@@ -183,7 +183,13 @@ class GeotabApiClient:
             
             # Map faults by device ID
             fault_map = defaultdict(list)
-            for fault in fault_results:
+            # Sort fault_results by dateTime descending (most recent first)
+            sorted_faults = sorted(
+                fault_results,
+                key=lambda x: x.get("dateTime", ""),
+                reverse=True
+            )
+            for fault in sorted_faults:
                 if "device" in fault:
                     fault_map[fault["device"]["id"]].append(fault)
 
