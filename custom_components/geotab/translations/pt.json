@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuração Geotab",
+        "description": "Insira suas credenciais Geotab para integrar seus dispositivos com o Home Assistant.",
+        "data": {
+          "username": "Nome de usuário",
+          "password": "Senha",
+          "database": "Banco de dados/Servidor",
+          "scan_interval": "Intervalo de verificação (segundos)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Falha ao conectar à API Geotab",
+      "invalid_auth": "Nome de usuário, senha ou banco de dados inválidos",
+      "min_scan_interval": "O intervalo de verificação deve ser de pelo menos 30 segundos",
+      "unknown": "Erro inesperado"
+    },
+    "abort": {
+      "already_configured": "Conta já configurada."
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Geotab Configuratie",
+        "description": "Voer uw Geotab-inloggegevens in om uw apparaten te integreren met Home Assistant.",
+        "data": {
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord",
+          "database": "Database/Server",
+          "scan_interval": "Scan-interval (seconden)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbinding met Geotab API mislukt",
+      "invalid_auth": "Ongeldige gebruikersnaam, wachtwoord of database",
+      "min_scan_interval": "Scan-interval moet minimaal 30 seconden zijn",
+      "unknown": "Onverwachte fout"
+    },
+    "abort": {
+      "already_configured": "Account al geconfigureerd."
+    }
+  }
+}
