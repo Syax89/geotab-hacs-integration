@@ -2,6 +2,8 @@
 
 DOMAIN = "geotab"
 DEFAULT_SCAN_INTERVAL = 60
+TRIP_FETCH_INTERVAL = 300  # Fetch trips every 5 minutes instead of every poll
+AUTO_PRUNE_REPROBE_INTERVAL = 50  # Re-probe pruned diagnostics every 50 polls
 
 # Circuit breaker: open after this many consecutive API failures
 CIRCUIT_BREAKER_MAX_FAILURES = 5
@@ -39,4 +41,12 @@ DIAGNOSTICS_TO_FETCH = {
     "ignition": "DiagnosticIgnitionId",
     "door_status": "DiagnosticDoorAjarId",  # Common ID for any door being ajar
     "seatbelt_status": "DiagnosticDriverSeatbeltId",
+    # ICE-specific diagnostics (v1.3.0)
+    "oil_temp": "DiagnosticEngineOilTemperatureId",
+    "oil_pressure": "DiagnosticEngineOilPressureId",
+    "engine_load": "DiagnosticEngineLoadId",
+    "transmission_temp": "DiagnosticTransmissionOilTemperatureId",
+    "ambient_temp": "DiagnosticAmbientAirTemperatureId",
+    "fuel_rate": "DiagnosticFuelRateId",
+    "throttle_pos": "DiagnosticThrottlePositionId",
 }

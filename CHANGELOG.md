@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.0] - 2026-03-08
+
+### Added
+- **Trip Statistics**: 7 new sensors (disabled by default): Daily/Weekly/Monthly Distance, Daily/Weekly Trip Count, Avg Trip Speed (7d), Weekly Idle Time
+- **ICE Diagnostics**: 7 new sensors (disabled by default): Oil Temperature, Oil Pressure, Engine Load, Transmission Temperature, Ambient Temperature, Fuel Rate, Throttle Position
+- **Trip History**: Expanded trip fetch from 10 to 200 results, stored as `trip_history` for aggregation
+- **Service `geotab.refresh`**: Force immediate data refresh from Developer Tools
+- **Auto-pruning**: Diagnostics returning empty data for all devices are automatically skipped; re-probed every 50 polls
+- **Trip fetch interval**: Trips fetched every 5 minutes instead of every poll (saves API calls)
+- **Structured logging**: Device-name prefixed logs, summary counts per update
+
+### Changed
+- Total entities per device: 35 (29 sensors + 5 binary sensors + 1 device tracker); 14 new sensors disabled by default
+
+### Fixed
+- Mock `conftest.py` aligned with actual 23-diagnostic call_map (was missing `odometer_raw`, `engine_hours_raw`, `diagnostics_lookup`, and new ICE diagnostics)
+
 ## [1.2.2] - 2026-03-08
 
 ### Fixed

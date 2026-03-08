@@ -7,7 +7,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, CONF_SCAN_INTERVAL
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -19,6 +19,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     CIRCUIT_BREAKER_MAX_FAILURES,
     CIRCUIT_BREAKER_RESET_DELAY,
+    TRIP_FETCH_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,6 +30,8 @@ PLATFORMS: list[Platform] = [
     Platform.DEVICE_TRACKER,
     Platform.SENSOR,
 ]
+
+SERVICE_REFRESH = "refresh"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -48,10 +51,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     consecutive_failures = 0
     circuit_open_since = None
 
+    # Trip fetch caching state
+    last_trip_fetch: float = 0.0
+    cached_trip_data: dict[str, dict] = {}
+
     # Create the DataUpdateCoordinator
     async def async_update_data():
         """Fetch data from API endpoint."""
         nonlocal consecutive_failures, circuit_open_since
+        nonlocal last_trip_fetch, cached_trip_data
 
         # If the circuit is open, skip the update until the reset delay has elapsed
         if circuit_open_since is not None:
@@ -66,13 +74,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.info("Geotab circuit breaker: attempting reset.")
             circuit_open_since = None
 
+        # Determine if we should fetch trips this cycle
+        now = dt_util.utcnow().timestamp()
+        include_trips = (now - last_trip_fetch) >= TRIP_FETCH_INTERVAL
+
         try:
-            data = await client.async_get_full_device_data()
+            data = await client.async_get_full_device_data(include_trips=include_trips)
+
+            if include_trips:
+                last_trip_fetch = now
+                # Cache trip data for cycles where trips are skipped
+                cached_trip_data = {}
+                for device_id, device_data in data.items():
+                    if "last_trip" in device_data:
+                        cached_trip_data[device_id] = {
+                            "last_trip": device_data["last_trip"],
+                            "trip_history": device_data.get("trip_history", []),
+                        }
+            else:
+                # Inject cached trip data
+                for device_id, trip_cache in cached_trip_data.items():
+                    if device_id in data:
+                        data[device_id].update(trip_cache)
+
             if consecutive_failures:
                 _LOGGER.info(
                     "Geotab API recovered after %d failure(s).", consecutive_failures
                 )
             consecutive_failures = 0
+
+            device_count = len(data)
+            _LOGGER.debug(
+                "Geotab update: %d device(s), trips=%s",
+                device_count,
+                "fetched" if include_trips else "cached",
+            )
+
             return data
         except InvalidAuth as err:
             # Auth errors won't fix themselves; notify HA to prompt re-auth
@@ -110,6 +147,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Store the coordinator in hass.data
     coordinator.config_entry = entry
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Register the refresh service (once per domain)
+    if not hass.services.has_service(DOMAIN, SERVICE_REFRESH):
+
+        async def handle_refresh(call: ServiceCall) -> None:
+            """Handle the geotab.refresh service call."""
+            _LOGGER.info("Geotab manual refresh requested via service call")
+            for coord in hass.data.get(DOMAIN, {}).values():
+                if isinstance(coord, DataUpdateCoordinator):
+                    await coord.async_request_refresh()
+
+        hass.services.async_register(DOMAIN, SERVICE_REFRESH, handle_refresh)
 
     # Set up the platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
