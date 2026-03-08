@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.7] - 2026-03-08
+
+### Fixed
+- **Ignition Sensing**: Improved real-time ignition detection by prioritizing engine RPM (>0). This ensures the vehicle shows as "On" immediately when engine activity is detected, even if the primary API ignition flag is delayed.
+
 ## [1.4.6] - 2026-03-08
 
 ### Fixed

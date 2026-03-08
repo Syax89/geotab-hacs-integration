@@ -361,10 +361,13 @@ class GeotabApiClient:
                     data.update(status_info)
 
                     # Ignition logic (priority order):
-                    # 1. isIgnitionOn from DeviceStatusInfo (most reliable when present)
-                    # 2. isDriving=False + speed=0 → ignition OFF (real-time, reliable)
-                    # 3. Fallback to DiagnosticIgnitionId (may be stale)
-                    if status_info.get("isIgnitionOn") is not None:
+                    # 1. RPM > 0 → ignition ON (physical reality)
+                    # 2. isIgnitionOn from DeviceStatusInfo (official flag)
+                    # 3. isDriving=False + speed=0 → ignition OFF (real-time, reliable)
+                    # 4. Fallback to DiagnosticIgnitionId (StatusData)
+                    if data.get("rpm", 0) > 0:
+                        data["ignition"] = 1
+                    elif status_info.get("isIgnitionOn") is not None:
                         data["ignition"] = 1 if status_info["isIgnitionOn"] else 0
                     elif status_info.get("isDriving") is False and status_info.get("speed", 0) == 0:
                         data["ignition"] = 0
