@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.2] - 2026-03-08
+
+### Fixed
+- **Fuel & Odometer Accuracy**: Switched primary Odometer to `DiagnosticOdometerId` and refined Fuel Level logic based on live vehicle data (Opel Corsa) to ensure parity with the MyGeotab portal.
+
+### Added
+- **Odometer (Adjustment)**: Added a new diagnostic sensor for the manually calibrated odometer offset.
+
 ## [1.4.1] - 2026-03-08
 
 ### Fixed

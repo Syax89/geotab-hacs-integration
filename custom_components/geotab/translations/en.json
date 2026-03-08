@@ -25,6 +25,7 @@
   "entity": {
     "sensor": {
       "odometer": { "name": "Odometer" },
+      "odometer_adjustment": { "name": "Odometer (Manual Offset/Adjustment)" },
       "odometer_raw": { "name": "Odometer (Raw ECU Data)" },
       "total_distance": { "name": "Odometer (Total Distance)" },
       "fuel_level": { "name": "Fuel Level" },

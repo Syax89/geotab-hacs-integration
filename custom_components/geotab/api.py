@@ -311,7 +311,9 @@ class GeotabApiClient:
 
                     # Robust fallback for odometer
                     if not data.get("odometer"):
-                        if diag_data.get("odometer_raw"):
+                        if diag_data.get("odometer_adjustment"):
+                            data["odometer"] = diag_data["odometer_adjustment"]
+                        elif diag_data.get("odometer_raw"):
                             data["odometer"] = diag_data["odometer_raw"]
                         elif diag_data.get("total_distance"):
                             data["odometer"] = diag_data["total_distance"]
