@@ -87,7 +87,7 @@ class GeotabApiClient:
                     {
                         "typeName": "StatusData",
                         "search": {"diagnosticSearch": {"id": diagnostic_id}},
-                        "resultsLimit": len(devices) * 2,
+                        "resultsLimit": len(devices) * 10,
                     },
                 )
             )
@@ -164,9 +164,7 @@ class GeotabApiClient:
                                 real_trips, key=lambda x: x.get("start", ""), reverse=True
                             )
                             trip_results_dict[trip_device_id] = sorted_trips[0]
-                        else:
-                            # Fallback if no real trips found (e.g., all distance 0)
-                            trip_results_dict[trip_device_id] = result[0]
+                        # If no trips with distance > 0, leave device out of trip_results_dict
 
             # Map status info by device ID
             status_map = {
@@ -257,5 +255,7 @@ class GeotabApiClient:
 
             return combined_data
 
+        except asyncio.TimeoutError as e:
+            raise ApiError("Data fetch timed out after 45 seconds") from e
         except Exception as e:
             raise ApiError(f"Failed to get device data: {e}") from e
