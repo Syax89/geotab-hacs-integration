@@ -21,5 +21,44 @@
     "abort": {
       "already_configured": "Account al geconfigureerd."
     }
+  },
+  "entity": {
+    "sensor": {
+      "odometer": { "name": "Kilometerteller" },
+      "fuel_level": { "name": "Brandstofniveau" },
+      "speed": { "name": "Snelheid" },
+      "fuel_rate": { "name": "Brandstofverbruik" },
+      "voltage": { "name": "Batterijspanning" },
+      "rpm": { "name": "Motor: Toerental" },
+      "engine_hours": { "name": "Motoruren" },
+      "engine_load": { "name": "Motor: Belasting" },
+      "coolant_temp": { "name": "Motor: Koelvloeistoftemperatuur" },
+      "oil_temp": { "name": "Motor: Olietemperatuur" },
+      "oil_pressure": { "name": "Motor: Oliedruk" },
+      "ambient_temp": { "name": "Omgevingstemperatuur" },
+      "transmission_temp": { "name": "Transmissietemperatuur" },
+      "tire_pressure_front_left": { "name": "Banden: Druk linksvoor" },
+      "tire_pressure_front_right": { "name": "Banden: Druk rechtsvoor" },
+      "tire_pressure_rear_left": { "name": "Banden: Druk linksachter" },
+      "tire_pressure_rear_right": { "name": "Banden: Druk rechtsachter" },
+      "accelerator_pos": { "name": "Gaspedaalpositie" },
+      "throttle_pos": { "name": "Gaskleppositie" },
+      "last_trip_distance": { "name": "Afstand laatste rit" },
+      "daily_distance": { "name": "Ritten: Dagelijkse afstand" },
+      "weekly_distance": { "name": "Ritten: Wekelijkse afstand" },
+      "monthly_distance": { "name": "Ritten: Maandelijkse afstand" },
+      "daily_trip_count": { "name": "Ritten: Aantal ritten per dag" },
+      "weekly_trip_count": { "name": "Ritten: Aantal ritten per week" },
+      "average_trip_speed": { "name": "Ritten: Gemiddelde snelheid (7d)" },
+      "weekly_idle_time": { "name": "Ritten: Wekelijkse stationaire tijd" },
+      "dateTime": { "name": "Laatste update" }
+    },
+    "binary_sensor": {
+      "is_driving": { "name": "Rijdend" },
+      "ignition": { "name": "Ontsteking" },
+      "active_faults": { "name": "Actieve fouten" },
+      "door_status": { "name": "Deur open" },
+      "seatbelt_status": { "name": "Veiligheidsgordel" }
+    }
   }
 }

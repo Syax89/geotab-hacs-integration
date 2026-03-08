@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.3] - 2026-03-08
+
+### Added
+- **Full Localization Support**: Updated all supported languages (DE, ES, FR, NL, PT) with the new localized entity name structure and UI organization.
+
 ## [1.3.2] - 2026-03-08
 
 ### Added

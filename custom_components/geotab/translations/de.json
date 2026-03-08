@@ -21,5 +21,44 @@
     "abort": {
       "already_configured": "Konto bereits konfiguriert."
     }
+  },
+  "entity": {
+    "sensor": {
+      "odometer": { "name": "Kilometerzähler" },
+      "fuel_level": { "name": "Kraftstoffstand" },
+      "speed": { "name": "Geschwindigkeit" },
+      "fuel_rate": { "name": "Kraftstoffverbrauch" },
+      "voltage": { "name": "Batteriespannung" },
+      "rpm": { "name": "Motor: Drehzahl" },
+      "engine_hours": { "name": "Betriebsstunden" },
+      "engine_load": { "name": "Motor: Auslastung" },
+      "coolant_temp": { "name": "Motor: Kühlmitteltemperatur" },
+      "oil_temp": { "name": "Motor: Öltemperatur" },
+      "oil_pressure": { "name": "Motor: Öldruck" },
+      "ambient_temp": { "name": "Außentemperatur" },
+      "transmission_temp": { "name": "Getriebetemperatur" },
+      "tire_pressure_front_left": { "name": "Reifen: Druck vorne links" },
+      "tire_pressure_front_right": { "name": "Reifen: Druck vorne rechts" },
+      "tire_pressure_rear_left": { "name": "Reifen: Druck hinten links" },
+      "tire_pressure_rear_right": { "name": "Reifen: Druck hinten rechts" },
+      "accelerator_pos": { "name": "Gaspedalstellung" },
+      "throttle_pos": { "name": "Drosselklappenstellung" },
+      "last_trip_distance": { "name": "Letzte Fahrtstrecke" },
+      "daily_distance": { "name": "Fahrten: Tägliche Strecke" },
+      "weekly_distance": { "name": "Fahrten: Wöchentliche Strecke" },
+      "monthly_distance": { "name": "Fahrten: Monatliche Strecke" },
+      "daily_trip_count": { "name": "Fahrten: Anzahl täglicher Fahrten" },
+      "weekly_trip_count": { "name": "Fahrten: Anzahl wöchentlicher Fahrten" },
+      "average_trip_speed": { "name": "Fahrten: Durchschnittsgeschwindigkeit (7t)" },
+      "weekly_idle_time": { "name": "Fahrten: Wöchentliche Leerlaufzeit" },
+      "dateTime": { "name": "Letzte Aktualisierung" }
+    },
+    "binary_sensor": {
+      "is_driving": { "name": "Fahren" },
+      "ignition": { "name": "Zündung" },
+      "active_faults": { "name": "Aktive Fehler" },
+      "door_status": { "name": "Tür offen" },
+      "seatbelt_status": { "name": "Sicherheitsgurt" }
+    }
   }
 }

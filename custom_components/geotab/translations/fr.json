@@ -21,5 +21,44 @@
     "abort": {
       "already_configured": "Compte déjà configuré."
     }
+  },
+  "entity": {
+    "sensor": {
+      "odometer": { "name": "Odomètre" },
+      "fuel_level": { "name": "Niveau de carburant" },
+      "speed": { "name": "Vitesse" },
+      "fuel_rate": { "name": "Débit de carburant" },
+      "voltage": { "name": "Tension de la batterie" },
+      "rpm": { "name": "Moteur : Régime" },
+      "engine_hours": { "name": "Heures moteur" },
+      "engine_load": { "name": "Moteur : Charge" },
+      "coolant_temp": { "name": "Moteur : Température du liquide de refroidissement" },
+      "oil_temp": { "name": "Moteur : Température de l'huile" },
+      "oil_pressure": { "name": "Moteur : Pression d'huile" },
+      "ambient_temp": { "name": "Température ambiante" },
+      "transmission_temp": { "name": "Température de transmission" },
+      "tire_pressure_front_left": { "name": "Pneus : Pression avant gauche" },
+      "tire_pressure_front_right": { "name": "Pneus : Pression avant droite" },
+      "tire_pressure_rear_left": { "name": "Pneus : Pression arrière gauche" },
+      "tire_pressure_rear_right": { "name": "Pneus : Pression arrière droite" },
+      "accelerator_pos": { "name": "Position de l'accélérateur" },
+      "throttle_pos": { "name": "Position du papillon" },
+      "last_trip_distance": { "name": "Distance du dernier trajet" },
+      "daily_distance": { "name": "Trajets : Distance quotidienne" },
+      "weekly_distance": { "name": "Trajets : Distance hebdomadaire" },
+      "monthly_distance": { "name": "Trajets : Distance mensuelle" },
+      "daily_trip_count": { "name": "Trajets : Nombre de trajets quotidiens" },
+      "weekly_trip_count": { "name": "Trajets : Nombre de trajets hebdomadaires" },
+      "average_trip_speed": { "name": "Trajets : Vitesse moyenne (7j)" },
+      "weekly_idle_time": { "name": "Trajets : Temps au ralenti hebdomadaire" },
+      "dateTime": { "name": "Dernière mise à jour" }
+    },
+    "binary_sensor": {
+      "is_driving": { "name": "En conduite" },
+      "ignition": { "name": "Allumage" },
+      "active_faults": { "name": "Défauts actifs" },
+      "door_status": { "name": "Porte ouverte" },
+      "seatbelt_status": { "name": "Ceinture de sécurité" }
+    }
   }
 }

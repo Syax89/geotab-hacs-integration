@@ -21,5 +21,44 @@
     "abort": {
       "already_configured": "Conta já configurada."
     }
+  },
+  "entity": {
+    "sensor": {
+      "odometer": { "name": "Odomômetro" },
+      "fuel_level": { "name": "Nível de combustível" },
+      "speed": { "name": "Velocidade" },
+      "fuel_rate": { "name": "Consumo de combustível" },
+      "voltage": { "name": "Tensão da bateria" },
+      "rpm": { "name": "Motor: RPM" },
+      "engine_hours": { "name": "Horas do motor" },
+      "engine_load": { "name": "Motor: Carga" },
+      "coolant_temp": { "name": "Motor: Temperatura do líquido de arrefecimento" },
+      "oil_temp": { "name": "Motor: Temperatura do óleo" },
+      "oil_pressure": { "name": "Motor: Pressão do óleo" },
+      "ambient_temp": { "name": "Temperatura ambiente" },
+      "transmission_temp": { "name": "Temperatura da transmissão" },
+      "tire_pressure_front_left": { "name": "Pneus: Pressão dianteira esquerda" },
+      "tire_pressure_front_right": { "name": "Pneus: Pressão dianteira direita" },
+      "tire_pressure_rear_left": { "name": "Pneus: Pressão traseira esquerda" },
+      "tire_pressure_rear_right": { "name": "Pneus: Pressão traseira direita" },
+      "accelerator_pos": { "name": "Posição do acelerador" },
+      "throttle_pos": { "name": "Posição da borboleta" },
+      "last_trip_distance": { "name": "Distância da última viagem" },
+      "daily_distance": { "name": "Viagens: Distância diária" },
+      "weekly_distance": { "name": "Viagens: Distância semanal" },
+      "monthly_distance": { "name": "Viagens: Distância mensal" },
+      "daily_trip_count": { "name": "Viagens: Número de viagens diárias" },
+      "weekly_trip_count": { "name": "Viagens: Número de viagens semanais" },
+      "average_trip_speed": { "name": "Viagens: Velocidade média (7d)" },
+      "weekly_idle_time": { "name": "Viagens: Tempo em marcha lenta semanal" },
+      "dateTime": { "name": "Última atualização" }
+    },
+    "binary_sensor": {
+      "is_driving": { "name": "Conduzindo" },
+      "ignition": { "name": "Ignição" },
+      "active_faults": { "name": "Falhas ativas" },
+      "door_status": { "name": "Porta aberta" },
+      "seatbelt_status": { "name": "Cinto de segurança" }
+    }
   }
 }
