@@ -257,15 +257,17 @@ class GeotabApiClient:
                 status["device"]["id"]: status
                 for status in status_results
                 if "device" in status
-            }
-
             # Map diagnostic data by device ID and key
             diagnostics_map = defaultdict(dict)
             for diag_key, items in diagnostic_results_dict.items():
                 if not isinstance(items, list):
                     continue
+                # Sort items by dateTime descending to get the newest first
+                # Special case: Geotab uses year 9999 for current adjusted values
                 sorted_items = sorted(
-                    items, key=lambda x: x.get("dateTime", ""), reverse=True
+                    items, 
+                    key=lambda x: x.get("dateTime", "1970-01-01T00:00:00Z"), 
+                    reverse=True
                 )
                 for item in sorted_items:
                     if "data" in item and "device" in item:

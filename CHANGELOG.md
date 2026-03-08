@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.3] - 2026-03-08
+
+### Fixed
+- **Odometer Precision**: Enhanced logic to correctly capture and prioritize future-dated `OdometerAdjustment` values (year 9999), which Geotab uses to store the current officially calibrated odometer reading.
+
 ## [1.4.2] - 2026-03-08
 
 ### Fixed

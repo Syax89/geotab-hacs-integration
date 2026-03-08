@@ -26,9 +26,8 @@ PA_TO_PSI = 0.000145038
 # Define the diagnostics we want to fetch, grouped by category
 DIAGNOSTICS_TO_FETCH = {
     # Driving & odometer
-    "odometer": "DiagnosticOdometerId",
-    "odometer_adjustment": "DiagnosticOdometerAdjustmentId",
-    "odometer_raw": "DiagnosticRawOdometerId",
+    "odometer": "DiagnosticOdometerAdjustmentId",
+    "odometer_raw": "DiagnosticOdometerId",
     "total_distance": "DiagnosticTotalDistanceId",
     "ignition": "DiagnosticIgnitionId",
     # Energy & fuel

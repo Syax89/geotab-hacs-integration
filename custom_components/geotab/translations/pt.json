@@ -25,7 +25,6 @@
   "entity": {
     "sensor": {
       "odometer": { "name": "Odomômetro" },
-      "odometer_adjustment": { "name": "Odomômetro (Ajuste)" },
       "odometer_raw": { "name": "Odomômetro (Dados brutos)" },
       "total_distance": { "name": "Odomômetro (Distância total)" },
       "fuel_level": { "name": "Nível de combustível" },
