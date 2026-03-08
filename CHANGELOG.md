@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.1] - 2026-03-08
+
+### Changed
+- **Reorganized Sensors**: Grouped sensors into logical categories (Primary, Performance, Engine Health, Environmental, Trip Stats, System) for better UI clarity.
+- **Reorganized Binary Sensors**: Grouped binary sensors into logical categories (Operation, Health, Safety).
+- **Entity Categories**: Improved use of `EntityCategory.DIAGNOSTIC` for technical sensors.
+
 ## [1.3.0] - 2026-03-08
 
 ### Added

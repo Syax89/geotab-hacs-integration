@@ -115,17 +115,7 @@ class GeotabBinarySensorEntityDescription(BinarySensorEntityDescription):
 
 
 BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
-    GeotabBinarySensorEntityDescription(
-        key="active_faults",
-        name="Active Faults",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        is_on_fn=lambda data: len(data.get("active_faults", [])) > 0,
-        attr_fn=lambda data: _format_fault_attributes(
-            data.get("active_faults", []),
-            data.get("_diagnostics_lookup"),
-        ),
-    ),
+    # ── Operation ───────────────────────────────────────────────────────
     GeotabBinarySensorEntityDescription(
         key="is_driving",
         name="Driving",
@@ -139,7 +129,19 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.get("ignition") == 1,
     ),
-    # --- Status / Safety ---
+    # ── Health (Diagnostics) ────────────────────────────────────────────
+    GeotabBinarySensorEntityDescription(
+        key="active_faults",
+        name="Active Faults",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: len(data.get("active_faults", [])) > 0,
+        attr_fn=lambda data: _format_fault_attributes(
+            data.get("active_faults", []),
+            data.get("_diagnostics_lookup"),
+        ),
+    ),
+    # ── Safety & Environment ────────────────────────────────────────────
     GeotabBinarySensorEntityDescription(
         key="door_status",
         name="Door Ajar",
@@ -158,6 +160,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         entity_registry_enabled_default=False,
     ),
 )
+
 
 
 async def async_setup_entry(

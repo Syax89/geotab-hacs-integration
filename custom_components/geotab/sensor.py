@@ -48,17 +48,7 @@ class GeotabSensorEntityDescription(SensorEntityDescription):
 
 
 SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
-    # --- Main Driving Data ---
-    GeotabSensorEntityDescription(
-        key="speed",
-        name="Speed",
-        icon="mdi:speedometer",
-        native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
-        device_class=SensorDeviceClass.SPEED,
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
-        value_fn=lambda data: data.get("speed"),
-    ),
+    # ── Primary Status ──────────────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="odometer",
         name="Odometer",
@@ -71,7 +61,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
             data.get("odometer", 0) / 1000 if data.get("odometer") is not None else None
         ),
     ),
-    # --- Energy & Fuel ---
     GeotabSensorEntityDescription(
         key="fuel_level",
         name="Fuel Level",
@@ -81,6 +70,30 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         suggested_display_precision=1,
         value_fn=lambda data: data.get("fuel_level"),
     ),
+    # ── Performance & Driving ───────────────────────────────────────────
+    GeotabSensorEntityDescription(
+        key="speed",
+        name="Speed",
+        icon="mdi:speedometer",
+        native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        device_class=SensorDeviceClass.SPEED,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("speed"),
+    ),
+    GeotabSensorEntityDescription(
+        key="fuel_rate",
+        name="Fuel Rate",
+        icon="mdi:fuel",
+        native_unit_of_measurement="L/h",
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda data: (
+            data.get("fuel_rate", 0) if data.get("ignition") == 1 else 0
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    # ── Engine & Health (Diagnostics) ──────────────────────────────────
     GeotabSensorEntityDescription(
         key="voltage",
         name="Battery Voltage",
@@ -92,7 +105,108 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         suggested_display_precision=2,
         value_fn=lambda data: data.get("voltage"),
     ),
-    # --- Tires ---
+    GeotabSensorEntityDescription(
+        key="rpm",
+        name="Engine Speed",
+        icon="mdi:engine-outline",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=0,
+        value_fn=lambda data: (
+            data.get("rpm", 0) if data.get("ignition") == 1 else 0
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="engine_hours",
+        name="Engine Hours",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: (
+            data.get("engine_hours", 0) / 3600
+            if data.get("engine_hours") is not None
+            else None
+        ),
+    ),
+    GeotabSensorEntityDescription(
+        key="engine_load",
+        name="Engine Load",
+        icon="mdi:engine",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("engine_load"),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="coolant_temp",
+        name="Coolant Temperature",
+        icon="mdi:thermometer",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("coolant_temp"),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="oil_temp",
+        name="Engine Oil Temperature",
+        icon="mdi:oil-temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("oil_temp"),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="oil_pressure",
+        name="Engine Oil Pressure",
+        icon="mdi:gauge",
+        native_unit_of_measurement=UnitOfPressure.KPA,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: (
+            data.get("oil_pressure") / 1000
+            if data.get("oil_pressure") is not None
+            else None
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    # ── Environmental & Chassis (Diagnostics) ───────────────────────────
+    GeotabSensorEntityDescription(
+        key="ambient_temp",
+        name="Ambient Temperature",
+        icon="mdi:thermometer",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("ambient_temp"),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="transmission_temp",
+        name="Transmission Temperature",
+        icon="mdi:car-cog",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("transmission_temp"),
+        entity_registry_enabled_default=False,
+    ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_left",
         name="Tire Pressure Front Left",
@@ -137,46 +251,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         suggested_display_precision=1,
         value_fn=lambda data: (data.get("tire_pressure_rear_right") or 0) * PA_TO_PSI,
     ),
-    # --- Engine & Technical ---
-    GeotabSensorEntityDescription(
-        key="engine_hours",
-        name="Engine Hours",
-        icon="mdi:timer-outline",
-        native_unit_of_measurement=UnitOfTime.HOURS,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("engine_hours", 0) / 3600
-            if data.get("engine_hours") is not None
-            else None
-        ),
-    ),
-    GeotabSensorEntityDescription(
-        key="rpm",
-        name="Engine Speed",
-        icon="mdi:engine-outline",
-        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=0,
-        value_fn=lambda data: (
-            data.get("rpm", 0) if data.get("ignition") == 1 else 0
-        ),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="coolant_temp",
-        name="Coolant Temperature",
-        icon="mdi:thermometer",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: data.get("coolant_temp"),
-        entity_registry_enabled_default=False,
-    ),
     GeotabSensorEntityDescription(
         key="accelerator_pos",
         name="Accelerator Position",
@@ -190,7 +264,20 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         ),
         entity_registry_enabled_default=False,
     ),
-    # --- Last Trip Data ---
+    GeotabSensorEntityDescription(
+        key="throttle_pos",
+        name="Throttle Position",
+        icon="mdi:gauge",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: (
+            data.get("throttle_pos", 0) if data.get("ignition") == 1 else 0
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    # ── Trip Statistics ─────────────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="last_trip_distance",
         name="Last Trip Distance",
@@ -205,20 +292,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
             else None
         ),
     ),
-    # --- System ---
-    GeotabSensorEntityDescription(
-        key="dateTime",
-        name="Last Update",
-        icon="mdi:clock-check",
-        device_class=SensorDeviceClass.TIMESTAMP,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (
-            dt_util.parse_datetime(data["dateTime"])
-            if isinstance(data.get("dateTime"), str)
-            else data.get("dateTime")
-        ),
-    ),
-    # --- Trip Statistics (v1.3.0) - all disabled by default ---
     GeotabSensorEntityDescription(
         key="daily_distance",
         name="Daily Distance",
@@ -307,95 +380,21 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         ),
         entity_registry_enabled_default=False,
     ),
-    # --- ICE Diagnostic Sensors (v1.3.0) - all disabled by default ---
+    # ── System (Diagnostics) ────────────────────────────────────────────
     GeotabSensorEntityDescription(
-        key="oil_temp",
-        name="Engine Oil Temperature",
-        icon="mdi:oil-temperature",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
+        key="dateTime",
+        name="Last Update",
+        icon="mdi:clock-check",
+        device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: data.get("oil_temp"),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="oil_pressure",
-        name="Engine Oil Pressure",
-        icon="mdi:gauge",
-        native_unit_of_measurement=UnitOfPressure.KPA,
-        device_class=SensorDeviceClass.PRESSURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: (
-            data.get("oil_pressure") / 1000
-            if data.get("oil_pressure") is not None
-            else None
+            dt_util.parse_datetime(data["dateTime"])
+            if isinstance(data.get("dateTime"), str)
+            else data.get("dateTime")
         ),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="engine_load",
-        name="Engine Load",
-        icon="mdi:engine",
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: data.get("engine_load"),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="transmission_temp",
-        name="Transmission Temperature",
-        icon="mdi:car-cog",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: data.get("transmission_temp"),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="ambient_temp",
-        name="Ambient Temperature",
-        icon="mdi:thermometer",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
-        value_fn=lambda data: data.get("ambient_temp"),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="fuel_rate",
-        name="Fuel Rate",
-        icon="mdi:fuel",
-        native_unit_of_measurement="L/h",
-        state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("fuel_rate", 0) if data.get("ignition") == 1 else 0
-        ),
-        entity_registry_enabled_default=False,
-    ),
-    GeotabSensorEntityDescription(
-        key="throttle_pos",
-        name="Throttle Position",
-        icon="mdi:gauge",
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("throttle_pos", 0) if data.get("ignition") == 1 else 0
-        ),
-        entity_registry_enabled_default=False,
     ),
 )
+
 
 
 async def async_setup_entry(
