@@ -21,5 +21,44 @@
     "abort": {
       "already_configured": "Account already configured."
     }
+  },
+  "entity": {
+    "sensor": {
+      "odometer": { "name": "Odometer" },
+      "fuel_level": { "name": "Fuel Level" },
+      "speed": { "name": "Speed" },
+      "fuel_rate": { "name": "Fuel Rate" },
+      "voltage": { "name": "Battery Voltage" },
+      "rpm": { "name": "Engine Speed" },
+      "engine_hours": { "name": "Engine Hours" },
+      "engine_load": { "name": "Engine Load" },
+      "coolant_temp": { "name": "Coolant Temperature" },
+      "oil_temp": { "name": "Engine Oil Temperature" },
+      "oil_pressure": { "name": "Engine Oil Pressure" },
+      "ambient_temp": { "name": "Ambient Temperature" },
+      "transmission_temp": { "name": "Transmission Temperature" },
+      "tire_pressure_front_left": { "name": "Tire Pressure Front Left" },
+      "tire_pressure_front_right": { "name": "Tire Pressure Front Right" },
+      "tire_pressure_rear_left": { "name": "Tire Pressure Rear Left" },
+      "tire_pressure_rear_right": { "name": "Tire Pressure Rear Right" },
+      "accelerator_pos": { "name": "Accelerator Position" },
+      "throttle_pos": { "name": "Throttle Position" },
+      "last_trip_distance": { "name": "Last Trip Distance" },
+      "daily_distance": { "name": "Daily Distance" },
+      "weekly_distance": { "name": "Weekly Distance" },
+      "monthly_distance": { "name": "Monthly Distance" },
+      "daily_trip_count": { "name": "Daily Trip Count" },
+      "weekly_trip_count": { "name": "Weekly Trip Count" },
+      "average_trip_speed": { "name": "Average Trip Speed (7d)" },
+      "weekly_idle_time": { "name": "Weekly Idle Time" },
+      "dateTime": { "name": "Last Update" }
+    },
+    "binary_sensor": {
+      "is_driving": { "name": "Driving" },
+      "ignition": { "name": "Ignition" },
+      "active_faults": { "name": "Active Faults" },
+      "door_status": { "name": "Door Ajar" },
+      "seatbelt_status": { "name": "Driver Seatbelt" }
+    }
   }
 }

@@ -21,5 +21,44 @@
     "abort": {
       "already_configured": "Account già configurato."
     }
+  },
+  "entity": {
+    "sensor": {
+      "odometer": { "name": "Odometro" },
+      "fuel_level": { "name": "Livello Carburante" },
+      "speed": { "name": "Velocità" },
+      "fuel_rate": { "name": "Consumo Istantaneo" },
+      "voltage": { "name": "Tensione Batteria" },
+      "rpm": { "name": "Motore: Giri" },
+      "engine_hours": { "name": "Ore Motore" },
+      "engine_load": { "name": "Motore: Carico" },
+      "coolant_temp": { "name": "Motore: Temperatura Refrigerante" },
+      "oil_temp": { "name": "Motore: Temperatura Olio" },
+      "oil_pressure": { "name": "Motore: Pressione Olio" },
+      "ambient_temp": { "name": "Temperatura Ambiente" },
+      "transmission_temp": { "name": "Temperatura Trasmissione" },
+      "tire_pressure_front_left": { "name": "Pneumatici: Pressione Anteriore Sinistra" },
+      "tire_pressure_front_right": { "name": "Pneumatici: Pressione Anteriore Destra" },
+      "tire_pressure_rear_left": { "name": "Pneumatici: Pressione Posteriore Sinistra" },
+      "tire_pressure_rear_right": { "name": "Pneumatici: Pressione Posteriore Destra" },
+      "accelerator_pos": { "name": "Posizione Acceleratore" },
+      "throttle_pos": { "name": "Posizione Farfalla" },
+      "last_trip_distance": { "name": "Distanza Ultimo Viaggio" },
+      "daily_distance": { "name": "Viaggi: Distanza Giornaliera" },
+      "weekly_distance": { "name": "Viaggi: Distanza Settimanale" },
+      "monthly_distance": { "name": "Viaggi: Distanza Mensile" },
+      "daily_trip_count": { "name": "Viaggi: Numero Viaggi Giornalieri" },
+      "weekly_trip_count": { "name": "Viaggi: Numero Viaggi Settimanali" },
+      "average_trip_speed": { "name": "Viaggi: Velocità Media (7g)" },
+      "weekly_idle_time": { "name": "Viaggi: Tempo al Minimo Settimanale" },
+      "dateTime": { "name": "Ultimo Aggiornamento" }
+    },
+    "binary_sensor": {
+      "is_driving": { "name": "In Guida" },
+      "ignition": { "name": "Accensione" },
+      "active_faults": { "name": "Guasti Attivi" },
+      "door_status": { "name": "Porta Aperta" },
+      "seatbelt_status": { "name": "Cintura di Sicurezza" }
+    }
   }
 }

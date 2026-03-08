@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.2] - 2026-03-08
+
+### Added
+- **Localized Entity Names**: Added support for translated entity names in English and Italian.
+- **Improved UI Organization**: Grouped sensors using prefixes (e.g., "Motore:", "Viaggi:", "Pneumatici:") in the Italian translation for better clarity in the Home Assistant UI.
+
 ## [1.3.1] - 2026-03-08
 
 ### Changed
