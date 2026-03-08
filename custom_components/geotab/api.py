@@ -9,8 +9,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 import aiohttp
-import mygeotab
-from mygeotab.exceptions import AuthenticationException
 
 from .const import DIAGNOSTICS_TO_FETCH, AUTO_PRUNE_REPROBE_INTERVAL
 
@@ -40,6 +38,8 @@ class GeotabApiClient:
         session: aiohttp.ClientSession,
     ) -> None:
         """Initialize the API client."""
+        import mygeotab
+
         self._username = username
         self._password = password
         self._database = database
@@ -55,6 +55,8 @@ class GeotabApiClient:
 
     async def async_authenticate(self) -> None:
         """Authenticate with the Geotab API."""
+        from mygeotab.exceptions import AuthenticationException
+
         try:
             loop = asyncio.get_running_loop()
             async with asyncio.timeout(10):

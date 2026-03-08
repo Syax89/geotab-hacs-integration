@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.5] - 2026-03-08
+
+### Fixed
+- **System Stability**: Moved the `mygeotab` library import inside methods to prevent blocking calls during integration loading, satisfying Home Assistant's strict asynchronous requirements.
+
 ## [1.4.4] - 2026-03-08
 
 ### Fixed
