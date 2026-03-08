@@ -51,7 +51,7 @@
       "weekly_trip_count": { "name": "Viajes: Contador de viajes semanal" },
       "average_trip_speed": { "name": "Viajes: Velocidad media (7d)" },
       "weekly_idle_time": { "name": "Viajes: Tiempo al ralentí semanal" },
-      "dateTime": { "name": "Última actualización" }
+      "last_update": { "name": "Última actualización" }
     },
     "binary_sensor": {
       "is_driving": { "name": "Conduciendo" },

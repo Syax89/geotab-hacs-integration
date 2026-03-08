@@ -381,7 +381,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     # ── System (Diagnostics) ────────────────────────────────────────────
     GeotabSensorEntityDescription(
-        key="dateTime",
+        key="last_update",
         name="Last Update",
         icon="mdi:clock-check",
         device_class=SensorDeviceClass.TIMESTAMP,

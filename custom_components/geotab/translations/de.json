@@ -51,7 +51,7 @@
       "weekly_trip_count": { "name": "Fahrten: Anzahl wöchentlicher Fahrten" },
       "average_trip_speed": { "name": "Fahrten: Durchschnittsgeschwindigkeit (7t)" },
       "weekly_idle_time": { "name": "Fahrten: Wöchentliche Leerlaufzeit" },
-      "dateTime": { "name": "Letzte Aktualisierung" }
+      "last_update": { "name": "Letzte Aktualisierung" }
     },
     "binary_sensor": {
       "is_driving": { "name": "Fahren" },

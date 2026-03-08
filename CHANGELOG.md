@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.8] - 2026-03-08
+
+### Fixed
+- **Hassfest Validation**: Corrected invalid translation keys (renamed `dateTime` to `last_update`) to comply with Home Assistant standards (lowercase only).
+
 ## [1.3.7] - 2026-03-08
 
 ### Fixed

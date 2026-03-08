@@ -51,7 +51,7 @@
       "weekly_trip_count": { "name": "Trips: Weekly Trip Count" },
       "average_trip_speed": { "name": "Trips: Avg Speed (7d)" },
       "weekly_idle_time": { "name": "Trips: Weekly Idle Time" },
-      "dateTime": { "name": "Last Update" }
+      "last_update": { "name": "Last Update" }
     },
     "binary_sensor": {
       "is_driving": { "name": "Driving" },
