@@ -254,7 +254,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     GeotabSensorEntityDescription(
         key="accelerator_pos",
         name="Accelerator Position",
-        icon="mdi:pedal",
+        icon="mdi:car-speed-limiter",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -267,7 +267,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     GeotabSensorEntityDescription(
         key="throttle_pos",
         name="Throttle Position",
-        icon="mdi:gauge",
+        icon="mdi:circle-slice-8",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
