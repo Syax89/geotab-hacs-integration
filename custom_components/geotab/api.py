@@ -309,9 +309,12 @@ class GeotabApiClient:
                     diag_data = diagnostics_map[device_id]
                     data.update(diag_data)
 
-                    # Fallback for odometer (if adjustment is None/0 but raw exists)
-                    if diag_data.get("odometer") is None and "odometer_raw" in diag_data:
-                        data["odometer"] = diag_data["odometer_raw"]
+                    # Robust fallback for odometer
+                    if not data.get("odometer"):
+                        if diag_data.get("odometer_raw"):
+                            data["odometer"] = diag_data["odometer_raw"]
+                        elif diag_data.get("total_distance"):
+                            data["odometer"] = diag_data["total_distance"]
 
                     # Fallback for engine_hours
                     if diag_data.get("engine_hours") is None and "engine_hours_raw" in diag_data:

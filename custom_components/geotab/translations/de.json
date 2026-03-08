@@ -25,6 +25,8 @@
   "entity": {
     "sensor": {
       "odometer": { "name": "Kilometerzähler" },
+      "odometer_raw": { "name": "Kilometerzähler (Rohdaten)" },
+      "total_distance": { "name": "Kilometerzähler (Gesamtstrecke)" },
       "fuel_level": { "name": "Kraftstoffstand" },
       "fuel_level_raw": { "name": "Kraftstoffstand (Rohdaten)" },
       "speed": { "name": "Geschwindigkeit" },

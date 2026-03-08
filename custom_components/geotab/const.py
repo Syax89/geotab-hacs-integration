@@ -28,6 +28,7 @@ DIAGNOSTICS_TO_FETCH = {
     # Driving & odometer
     "odometer": "DiagnosticOdometerAdjustmentId",
     "odometer_raw": "DiagnosticOdometerId",
+    "total_distance": "DiagnosticTotalDistanceId",
     "ignition": "DiagnosticIgnitionId",
     # Energy & fuel
     "voltage": "DiagnosticGoDeviceVoltageId",

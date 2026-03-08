@@ -25,6 +25,8 @@
   "entity": {
     "sensor": {
       "odometer": { "name": "Kilometerteller" },
+      "odometer_raw": { "name": "Kilometerteller (Ruwe gegevens)" },
+      "total_distance": { "name": "Kilometerteller (Totale afstand)" },
       "fuel_level": { "name": "Brandstofniveau" },
       "fuel_level_raw": { "name": "Brandstofniveau (Ruwe gegevens)" },
       "speed": { "name": "Snelheid" },

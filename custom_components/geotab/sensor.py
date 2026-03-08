@@ -60,6 +60,35 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         ),
     ),
     GeotabSensorEntityDescription(
+        key="odometer_raw",
+        translation_key="odometer_raw",
+        icon="mdi:counter",
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        device_class=SensorDeviceClass.DISTANCE,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: (
+            data.get("odometer_raw", 0) / 1000 if data.get("odometer_raw") is not None else None
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="total_distance",
+        translation_key="total_distance",
+        icon="mdi:counter",
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        device_class=SensorDeviceClass.DISTANCE,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: (
+            data.get("total_distance", 0) / 1000 if data.get("total_distance") is not None else None
+        ),
+        entity_registry_enabled_default=False,
+    ),
+
+    GeotabSensorEntityDescription(
         key="fuel_level",
         translation_key="fuel_level",
         icon="mdi:gas-station",

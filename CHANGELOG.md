@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.1] - 2026-03-08
+
+### Fixed
+- **Odometer Accuracy**: Improved fallback logic for the primary Odometer sensor. It now prioritizes `OdometerAdjustment`, then falls back to `Odometer` (Raw ECU), and finally `TotalDistance`.
+
+### Added
+- **Odometer Diagnostics**: Added `odometer_raw` and `total_distance` sensors (disabled by default) to help users identify the correct odometer source for their specific vehicle.
+
 ## [1.4.0] - 2026-03-08
 
 ### Changed
