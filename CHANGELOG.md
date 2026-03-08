@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.9] - 2026-03-08
+
+### Fixed
+- **Localization**: Switched to `translation_key` for all entities to ensure names are correctly localized according to the Home Assistant language settings (fixes issues where names appeared in English on Italian systems).
+
 ## [1.3.8] - 2026-03-08
 
 ### Fixed

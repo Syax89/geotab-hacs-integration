@@ -28,7 +28,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
     DataUpdateCoordinator,
 )
 
@@ -50,7 +49,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # ── Primary Status ──────────────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="odometer",
-        name="Odometer",
+        translation_key="odometer",
         icon="mdi:counter",
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
@@ -62,7 +61,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="fuel_level",
-        name="Fuel Level",
+        translation_key="fuel_level",
         icon="mdi:gas-station",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -72,7 +71,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # ── Performance & Driving ───────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="speed",
-        name="Speed",
+        translation_key="speed",
         icon="mdi:speedometer",
         native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
         device_class=SensorDeviceClass.SPEED,
@@ -82,7 +81,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="fuel_rate",
-        name="Fuel Rate",
+        translation_key="fuel_rate",
         icon="mdi:fuel",
         native_unit_of_measurement="L/h",
         state_class=SensorStateClass.MEASUREMENT,
@@ -95,7 +94,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # ── Engine & Health (Diagnostics) ──────────────────────────────────
     GeotabSensorEntityDescription(
         key="voltage",
-        name="Battery Voltage",
+        translation_key="voltage",
         icon="mdi:car-battery",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
@@ -106,7 +105,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="rpm",
-        name="Engine Speed",
+        translation_key="rpm",
         icon="mdi:engine-outline",
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -119,7 +118,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="engine_hours",
-        name="Engine Hours",
+        translation_key="engine_hours",
         icon="mdi:timer-outline",
         native_unit_of_measurement=UnitOfTime.HOURS,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -133,7 +132,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="engine_load",
-        name="Engine Load",
+        translation_key="engine_load",
         icon="mdi:engine",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -144,7 +143,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="coolant_temp",
-        name="Coolant Temperature",
+        translation_key="coolant_temp",
         icon="mdi:thermometer",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -156,7 +155,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="oil_temp",
-        name="Engine Oil Temperature",
+        translation_key="oil_temp",
         icon="mdi:oil-temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -168,7 +167,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="oil_pressure",
-        name="Engine Oil Pressure",
+        translation_key="oil_pressure",
         icon="mdi:gauge",
         native_unit_of_measurement=UnitOfPressure.KPA,
         device_class=SensorDeviceClass.PRESSURE,
@@ -185,7 +184,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # ── Environmental & Chassis (Diagnostics) ───────────────────────────
     GeotabSensorEntityDescription(
         key="ambient_temp",
-        name="Ambient Temperature",
+        translation_key="ambient_temp",
         icon="mdi:thermometer",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -196,7 +195,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="transmission_temp",
-        name="Transmission Temperature",
+        translation_key="transmission_temp",
         icon="mdi:car-cog",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -208,7 +207,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_left",
-        name="Tire Pressure Front Left",
+        translation_key="tire_pressure_front_left",
         icon="mdi:tire",
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
@@ -219,7 +218,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_right",
-        name="Tire Pressure Front Right",
+        translation_key="tire_pressure_front_right",
         icon="mdi:tire",
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
@@ -230,7 +229,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_left",
-        name="Tire Pressure Rear Left",
+        translation_key="tire_pressure_rear_left",
         icon="mdi:tire",
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
@@ -241,7 +240,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_right",
-        name="Tire Pressure Rear Right",
+        translation_key="tire_pressure_rear_right",
         icon="mdi:tire",
         native_unit_of_measurement=UnitOfPressure.PSI,
         device_class=SensorDeviceClass.PRESSURE,
@@ -252,7 +251,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="accelerator_pos",
-        name="Accelerator Position",
+        translation_key="accelerator_pos",
         icon="mdi:car-speed-limiter",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -265,7 +264,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="throttle_pos",
-        name="Throttle Position",
+        translation_key="throttle_pos",
         icon="mdi:circle-slice-8",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -279,7 +278,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # ── Trip Statistics ─────────────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="last_trip_distance",
-        name="Last Trip Distance",
+        translation_key="last_trip_distance",
         icon="mdi:map-marker-distance",
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
@@ -293,7 +292,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="daily_distance",
-        name="Daily Distance",
+        translation_key="daily_distance",
         icon="mdi:map-marker-path",
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
@@ -306,7 +305,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="weekly_distance",
-        name="Weekly Distance",
+        translation_key="weekly_distance",
         icon="mdi:map-marker-path",
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
@@ -319,7 +318,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="monthly_distance",
-        name="Monthly Distance",
+        translation_key="monthly_distance",
         icon="mdi:map-marker-path",
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
@@ -332,7 +331,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="daily_trip_count",
-        name="Daily Trip Count",
+        translation_key="daily_trip_count",
         icon="mdi:counter",
         native_unit_of_measurement="trips",
         state_class=SensorStateClass.MEASUREMENT,
@@ -344,7 +343,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="weekly_trip_count",
-        name="Weekly Trip Count",
+        translation_key="weekly_trip_count",
         icon="mdi:counter",
         native_unit_of_measurement="trips",
         state_class=SensorStateClass.MEASUREMENT,
@@ -356,7 +355,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="average_trip_speed",
-        name="Avg Trip Speed (7d)",
+        translation_key="average_trip_speed",
         icon="mdi:speedometer",
         native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
         device_class=SensorDeviceClass.SPEED,
@@ -369,7 +368,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     ),
     GeotabSensorEntityDescription(
         key="weekly_idle_time",
-        name="Weekly Idle Time",
+        translation_key="weekly_idle_time",
         icon="mdi:timer-sand",
         native_unit_of_measurement=UnitOfTime.HOURS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -382,7 +381,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
     # ── System (Diagnostics) ────────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="last_update",
-        name="Last Update",
+        translation_key="last_update",
         icon="mdi:clock-check",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,

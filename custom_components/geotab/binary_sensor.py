@@ -118,13 +118,13 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
     # ── Operation ───────────────────────────────────────────────────────
     GeotabBinarySensorEntityDescription(
         key="is_driving",
-        name="Driving",
+        translation_key="is_driving",
         device_class=BinarySensorDeviceClass.MOVING,
         is_on_fn=lambda data: bool(data.get("isDriving")),
     ),
     GeotabBinarySensorEntityDescription(
         key="ignition",
-        name="Ignition",
+        translation_key="ignition",
         device_class=BinarySensorDeviceClass.POWER,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.get("ignition") == 1,
@@ -132,7 +132,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
     # ── Health (Diagnostics) ────────────────────────────────────────────
     GeotabBinarySensorEntityDescription(
         key="active_faults",
-        name="Active Faults",
+        translation_key="active_faults",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: len(data.get("active_faults", [])) > 0,
@@ -144,7 +144,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
     # ── Safety & Environment ────────────────────────────────────────────
     GeotabBinarySensorEntityDescription(
         key="door_status",
-        name="Door Ajar",
+        translation_key="door_status",
         device_class=BinarySensorDeviceClass.DOOR,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.get("door_status") == 1,
@@ -152,7 +152,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
     ),
     GeotabBinarySensorEntityDescription(
         key="seatbelt_status",
-        name="Driver Seatbelt",
+        translation_key="seatbelt_status",
         device_class=BinarySensorDeviceClass.SAFETY,
         icon="mdi:seatbelt",
         entity_category=EntityCategory.DIAGNOSTIC,
