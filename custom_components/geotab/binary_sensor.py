@@ -25,7 +25,7 @@ from .const import DOMAIN, FAULT_DIAGNOSTIC_NAMES
 from .entity import GeotabEntity
 
 
-def _format_fault_attributes(faults: list) -> dict[str, Any]:
+def _format_fault_attributes(faults: list, diagnostics_lookup: dict | None = None) -> dict[str, Any]:
     """Format fault data into readable attributes."""
     if not faults:
         return {
@@ -33,6 +33,9 @@ def _format_fault_attributes(faults: list) -> dict[str, Any]:
             "faults_list": [],
             "faults_details": [],
         }
+
+    if diagnostics_lookup is None:
+        diagnostics_lookup = {}
 
     formatted_faults = []
     details = []
@@ -45,15 +48,19 @@ def _format_fault_attributes(faults: list) -> dict[str, Any]:
 
         if "diagnostic" in fault and isinstance(fault["diagnostic"], dict):
             diag_id = fault["diagnostic"].get("id", "Unknown")
-            # Extract readable name from ID
-            diagnostic_name = diag_id.replace("Diagnostic", "").replace("Id", " ").strip()
-            
-            # Known mappings (defined in const.py)
-            for key, info in FAULT_DIAGNOSTIC_NAMES.items():
-                if key in diag_id:
-                    diagnostic_name = info["name"]
-                    fault_code = info["code"]
-                    break
+
+            # 1. Try API-resolved name from Diagnostic lookup
+            if diag_id in diagnostics_lookup:
+                diagnostic_name = diagnostics_lookup[diag_id]
+            # 2. Try known mappings (defined in const.py)
+            else:
+                # Extract readable name from ID as last resort
+                diagnostic_name = diag_id.replace("Diagnostic", "").replace("Id", " ").strip()
+                for key, info in FAULT_DIAGNOSTIC_NAMES.items():
+                    if key in diag_id:
+                        diagnostic_name = info["name"]
+                        fault_code = info["code"]
+                        break
 
         # Extract description
         description = fault.get("description", diagnostic_name)
@@ -114,7 +121,10 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: len(data.get("active_faults", [])) > 0,
-        attr_fn=lambda data: _format_fault_attributes(data.get("active_faults", [])),
+        attr_fn=lambda data: _format_fault_attributes(
+            data.get("active_faults", []),
+            data.get("_diagnostics_lookup"),
+        ),
     ),
     GeotabBinarySensorEntityDescription(
         key="is_driving",

@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.2] - 2026-03-08
+
+### Fixed
+- **Last trip distance**: Trip query now uses `fromDate` (90 days ago) to fetch recent trips instead of oldest ones
+- **Ignition state**: Use `isDriving=false` + `speed=0` as fallback when `isIgnitionOn` is absent, preventing stale ignition readings
+- **Fault descriptions**: Resolve opaque diagnostic IDs via Geotab `Diagnostic` API for human-readable fault names
+- **Engine hours**: Correctly derived from latest trip (~32.6h) instead of stale oldest trip (2.0h) — fixed by trip query improvement
+- **RPM when parked**: Now correctly shows 0 when vehicle is off — fixed by ignition state improvement
+
 ## [1.2.1] - 2026-03-08
 
 ### Fixed

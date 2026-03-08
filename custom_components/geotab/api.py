@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import socket
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 
 import aiohttp
 import mygeotab
@@ -106,7 +107,20 @@ class GeotabApiClient:
         )
         call_map.append("faults")
 
-        # Latest trip per device
+        # Diagnostic lookup for Go device faults (resolves opaque IDs to names)
+        calls.append(
+            (
+                "Get",
+                {
+                    "typeName": "Diagnostic",
+                    "search": {"diagnosticType": "GoFault"},
+                },
+            )
+        )
+        call_map.append("diagnostics_lookup")
+
+        # Latest trip per device (fromDate = 90 days ago to get recent trips)
+        from_date = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
         for device in devices:
             device_id = device["id"]
             calls.append(
@@ -114,8 +128,11 @@ class GeotabApiClient:
                     "Get",
                     {
                         "typeName": "Trip",
-                        "search": {"deviceSearch": {"id": device_id}},
-                        "resultsLimit": 5,
+                        "search": {
+                            "deviceSearch": {"id": device_id},
+                            "fromDate": from_date,
+                        },
+                        "resultsLimit": 10,
                     },
                 )
             )
@@ -143,11 +160,20 @@ class GeotabApiClient:
             diagnostic_results_dict = {}
             fault_results = []
             trip_results_dict = {}
+            diagnostics_lookup = {}
 
             for i, result in enumerate(results):
                 key = call_map[i]
                 if key == "status":
                     status_results = result
+                elif key == "diagnostics_lookup":
+                    # Build map: diagnostic ID → human-readable name
+                    if isinstance(result, list):
+                        for diag in result:
+                            diag_id = diag.get("id")
+                            diag_name = diag.get("name")
+                            if diag_id and diag_name:
+                                diagnostics_lookup[diag_id] = diag_name
                 elif key.startswith("diag_"):
                     diag_key = key[5:]
                     diagnostic_results_dict[diag_key] = result
@@ -224,7 +250,8 @@ class GeotabApiClient:
                     if diag_data.get("engine_hours") is None and "engine_hours_raw" in diag_data:
                         data["engine_hours"] = diag_data["engine_hours_raw"]
                 
-                # 2. Add fault data
+                # 2. Add fault data and diagnostic name lookup
+                data["_diagnostics_lookup"] = diagnostics_lookup
                 if device_id in fault_map:
                     data["active_faults"] = fault_map[device_id]
                 
@@ -242,13 +269,18 @@ class GeotabApiClient:
                 if status_info := status_map.get(device_id):
                     # Cache ignition from StatusData as fallback if isIgnitionOn is None
                     status_data_ignition = data.get("ignition")
-                    
+
                     data.update(status_info)
-                    
+
+                    # Ignition logic (priority order):
+                    # 1. isIgnitionOn from DeviceStatusInfo (most reliable when present)
+                    # 2. isDriving=False + speed=0 → ignition OFF (real-time, reliable)
+                    # 3. Fallback to DiagnosticIgnitionId (may be stale)
                     if status_info.get("isIgnitionOn") is not None:
                         data["ignition"] = 1 if status_info["isIgnitionOn"] else 0
+                    elif status_info.get("isDriving") is False and status_info.get("speed", 0) == 0:
+                        data["ignition"] = 0
                     elif status_data_ignition is not None:
-                        # Fallback to DiagnosticIgnitionId
                         data["ignition"] = status_data_ignition
                 
                 combined_data[device_id] = data
