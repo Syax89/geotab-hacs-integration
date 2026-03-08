@@ -35,47 +35,49 @@ def mock_geotab_api():
             [{"device": {"id": "device1"}, "data": 13.5, "dateTime": "2026-03-08T10:00:00Z"}],
             # 5. diag_fuel_level
             [{"device": {"id": "device1"}, "data": 75.0, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 6. diag_fuel_rate
+            # 6. diag_fuel_level_raw
+            [{"device": {"id": "device1"}, "data": 38.03, "dateTime": "2026-03-08T10:00:00Z"}],
+            # 7. diag_fuel_rate
             [{"device": {"id": "device1"}, "data": 8.5, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 7. diag_rpm
+            # 8. diag_rpm
             [{"device": {"id": "device1"}, "data": 2500, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 8. diag_engine_hours
+            # 9. diag_engine_hours
             [{"device": {"id": "device1"}, "data": 5000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 9. diag_engine_hours_raw
+            # 10. diag_engine_hours_raw
             [{"device": {"id": "device1"}, "data": 5000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 10. diag_engine_load
+            # 11. diag_engine_load
             [{"device": {"id": "device1"}, "data": 45, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 11. diag_coolant_temp
+            # 12. diag_coolant_temp
             [{"device": {"id": "device1"}, "data": 90, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 12. diag_oil_temp
+            # 13. diag_oil_temp
             [{"device": {"id": "device1"}, "data": 95, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 13. diag_oil_pressure
+            # 14. diag_oil_pressure
             [{"device": {"id": "device1"}, "data": 350000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 14. diag_accelerator_pos
+            # 15. diag_accelerator_pos
             [{"device": {"id": "device1"}, "data": 15, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 15. diag_throttle_pos
+            # 16. diag_throttle_pos
             [{"device": {"id": "device1"}, "data": 30, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 16. diag_transmission_temp
+            # 17. diag_transmission_temp
             [{"device": {"id": "device1"}, "data": 80, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 17. diag_ambient_temp
+            # 18. diag_ambient_temp
             [{"device": {"id": "device1"}, "data": 22, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 18. diag_tire_pressure_front_left
+            # 19. diag_tire_pressure_front_left
             [{"device": {"id": "device1"}, "data": 220000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 19. diag_tire_pressure_front_right
+            # 20. diag_tire_pressure_front_right
             [{"device": {"id": "device1"}, "data": 220000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 20. diag_tire_pressure_rear_left
+            # 21. diag_tire_pressure_rear_left
             [{"device": {"id": "device1"}, "data": 220000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 21. diag_tire_pressure_rear_right
+            # 22. diag_tire_pressure_rear_right
             [{"device": {"id": "device1"}, "data": 220000, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 22. diag_door_status
+            # 23. diag_door_status
             [{"device": {"id": "device1"}, "data": 0, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 23. diag_seatbelt_status
+            # 24. diag_seatbelt_status
             [{"device": {"id": "device1"}, "data": 0, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 24. Fault Data
+            # 25. Fault Data
             [{"device": {"id": "device1"}, "id": "fault1", "dateTime": "2026-02-13T12:00:00Z"}],
-            # 25. Diagnostics Lookup
+            # 26. Diagnostics Lookup
             [{"id": "diag1", "name": "Test Diagnostic"}],
-            # 26. Trip Result for device1
+            # 27. Trip Result for device1
             [
                 {"id": "trip1", "distance": 15.0, "start": "2026-03-08T10:00:00Z", "stop": "2026-03-08T10:30:00Z", "maximumSpeed": 80, "drivingDuration": "PT25M", "idlingDuration": "PT5M"},
                 {"id": "trip2", "distance": 22.5, "start": "2026-03-07T08:00:00Z", "stop": "2026-03-07T08:45:00Z", "maximumSpeed": 100, "drivingDuration": "PT40M", "idlingDuration": "PT3M"},

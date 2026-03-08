@@ -68,6 +68,16 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         suggested_display_precision=1,
         value_fn=lambda data: data.get("fuel_level"),
     ),
+    GeotabSensorEntityDescription(
+        key="fuel_level_raw",
+        translation_key="fuel_level_raw",
+        icon="mdi:gas-station-outline",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=1,
+        value_fn=lambda data: data.get("fuel_level_raw"),
+        entity_registry_enabled_default=False,
+    ),
     # ── Performance & Driving ───────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="speed",

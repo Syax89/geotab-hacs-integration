@@ -23,30 +23,37 @@ FAULT_DIAGNOSTIC_NAMES: dict[str, dict[str, str]] = {
 # Conversion factor from Pascals (Pa) to PSI
 PA_TO_PSI = 0.000145038
 
-# Define the diagnostics we want to fetch
+# Define the diagnostics we want to fetch, grouped by category
 DIAGNOSTICS_TO_FETCH = {
+    # Driving & odometer
     "odometer": "DiagnosticOdometerAdjustmentId",
     "odometer_raw": "DiagnosticOdometerId",
+    "ignition": "DiagnosticIgnitionId",
+    # Energy & fuel
     "voltage": "DiagnosticGoDeviceVoltageId",
-    "fuel_level": "DiagnosticFuelLevelId",
+    "fuel_level": "DiagnosticFuelLevelPercentageId",
+    "fuel_level_raw": "DiagnosticFuelLevelId",
+    "fuel_rate": "DiagnosticFuelRateId",
+    # Engine
+    "rpm": "DiagnosticEngineSpeedId",
+    "engine_hours": "DiagnosticEngineHoursAdjustmentId",
+    "engine_hours_raw": "DiagnosticEngineHoursId",
+    "engine_load": "DiagnosticEngineLoadId",
+    "coolant_temp": "DiagnosticEngineCoolantTemperatureId",
+    "oil_temp": "DiagnosticEngineOilTemperatureId",
+    "oil_pressure": "DiagnosticEngineOilPressureId",
+    # Pedals & throttle
+    "accelerator_pos": "DiagnosticAcceleratorPedalPositionId",
+    "throttle_pos": "DiagnosticThrottlePositionId",
+    # Transmission & environment
+    "transmission_temp": "DiagnosticTransmissionOilTemperatureId",
+    "ambient_temp": "DiagnosticAmbientAirTemperatureId",
+    # Tires
     "tire_pressure_front_left": "DiagnosticTirePressureFrontLeftId",
     "tire_pressure_front_right": "DiagnosticTirePressureFrontRightId",
     "tire_pressure_rear_left": "DiagnosticTirePressureRearLeftId",
     "tire_pressure_rear_right": "DiagnosticTirePressureRearRightId",
-    "rpm": "DiagnosticEngineSpeedId",
-    "coolant_temp": "DiagnosticEngineCoolantTemperatureId",
-    "accelerator_pos": "DiagnosticAcceleratorPedalPositionId",
-    "engine_hours": "DiagnosticEngineHoursAdjustmentId",
-    "engine_hours_raw": "DiagnosticEngineHoursId",
-    "ignition": "DiagnosticIgnitionId",
-    "door_status": "DiagnosticDoorAjarId",  # Common ID for any door being ajar
+    # Safety & body
+    "door_status": "DiagnosticDoorAjarId",
     "seatbelt_status": "DiagnosticDriverSeatbeltId",
-    # ICE-specific diagnostics (v1.3.0)
-    "oil_temp": "DiagnosticEngineOilTemperatureId",
-    "oil_pressure": "DiagnosticEngineOilPressureId",
-    "engine_load": "DiagnosticEngineLoadId",
-    "transmission_temp": "DiagnosticTransmissionOilTemperatureId",
-    "ambient_temp": "DiagnosticAmbientAirTemperatureId",
-    "fuel_rate": "DiagnosticFuelRateId",
-    "throttle_pos": "DiagnosticThrottlePositionId",
 }

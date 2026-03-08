@@ -26,6 +26,7 @@
     "sensor": {
       "odometer": { "name": "Odomètre" },
       "fuel_level": { "name": "Niveau de carburant" },
+      "fuel_level_raw": { "name": "Niveau de carburant (Données brutes)" },
       "speed": { "name": "Vitesse" },
       "fuel_rate": { "name": "Débit de carburant" },
       "voltage": { "name": "Tension de la batterie" },

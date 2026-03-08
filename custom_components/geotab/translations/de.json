@@ -26,6 +26,7 @@
     "sensor": {
       "odometer": { "name": "Kilometerzähler" },
       "fuel_level": { "name": "Kraftstoffstand" },
+      "fuel_level_raw": { "name": "Kraftstoffstand (Rohdaten)" },
       "speed": { "name": "Geschwindigkeit" },
       "fuel_rate": { "name": "Kraftstoffverbrauch" },
       "voltage": { "name": "Batteriespannung" },

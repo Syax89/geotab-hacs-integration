@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.0] - 2026-03-08
+
+### Changed
+- **Fuel Level**: Switched primary Fuel Level sensor to use `DiagnosticFuelLevelPercentageId`, which provides a more consistent 0-100% value across different vehicle types.
+
+### Added
+- **Fuel Level (Raw)**: Added a new diagnostic sensor `fuel_level_raw` (disabled by default) that reports the original `DiagnosticFuelLevelId` value for troubleshooting and specific vehicle configurations.
+
 ## [1.3.9] - 2026-03-08
 
 ### Fixed

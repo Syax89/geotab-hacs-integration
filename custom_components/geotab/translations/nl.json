@@ -26,6 +26,7 @@
     "sensor": {
       "odometer": { "name": "Kilometerteller" },
       "fuel_level": { "name": "Brandstofniveau" },
+      "fuel_level_raw": { "name": "Brandstofniveau (Ruwe gegevens)" },
       "speed": { "name": "Snelheid" },
       "fuel_rate": { "name": "Brandstofverbruik" },
       "voltage": { "name": "Batterijspanning" },
