@@ -2,27 +2,31 @@
 
 All notable changes to this project are documented in this file.
 
-## [1.1.9] - 2026-02-20
-
-### Added
-- Per-sensor `suggested_display_precision` so HA displays the right number of
-  decimal places without discarding precision in the stored value
-- Circuit breaker: after 5 consecutive API failures updates pause for 300 s
-  before retrying, preventing hammering an unavailable API
-- `InvalidAuth` now raises `ConfigEntryAuthFailed` so HA immediately prompts
-  re-authentication instead of silently retrying
+## [1.2.0] - 2026-02-20
 
 ### Changed
-- Fault diagnostic name mappings moved from hardcoded Italian strings in
-  `binary_sensor.py` to a centralized `FAULT_DIAGNOSTIC_NAMES` dict in
-  `const.py` (English, easy to extend)
-- All blocking mygeotab calls consolidated into a single `run_in_executor`
-  call per coordinator update (one thread instead of two, one 45 s timeout)
-- `mygeotab` dependency relaxed from `==0.9.1` to `>=0.9.1,<1.0.0` to allow
-  patch/minor updates without requiring a manual manifest bump
+- **License**: Switched from Apache 2.0 to MIT License for maximum permissiveness
+- **Dependencies**: Relaxed `mygeotab` from `==0.9.1` to `>=0.9.1,<1.0.0` for easier updates
+- **Fault mappings**: Moved from hardcoded Italian strings to centralized `FAULT_DIAGNOSTIC_NAMES` dict in `const.py` (English, extensible)
+- **Performance**: Blocking mygeotab calls consolidated into single `run_in_executor` (one thread, 45s timeout)
+
+### Added
+- **CI**: Matrix testing for Python 3.12 and 3.13
+- **CI**: pip cache for faster dependency installation
+- **CI**: Proper PYTHONPATH environment variable setup
+- **Translations**: German (de), Spanish (es), French (fr), Portuguese (pt), Dutch (nl)
+- **Sensors**: Per-sensor `suggested_display_precision` for better display formatting
+- **Resilience**: Circuit breaker: after 5 consecutive API failures, updates pause for 300s
+- **Authentication**: `InvalidAuth` now raises `ConfigEntryAuthFailed` for immediate re-auth prompt
 
 ### Fixed
-- Manifest version was stuck at `1.0.0` despite code being at `1.1.8`
+- **CI**: Reliability improvements for pytest in GitHub Actions
+- Manifest version sync (was stuck at 1.0.0)
+
+### Documentation
+- Comprehensive documentation update for v1.1.x series
+
+## Previous Releases
 
 ## [1.1.8] - 2026-02-20
 
