@@ -24,7 +24,7 @@ def mock_geotab_api():
         # Order MUST match api.py _blocking_fetch_all and const.py DIAGNOSTICS_TO_FETCH
         instance.multi_call.return_value = [
             # 0. Status
-            [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0}],
+            [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0, "dateTime": "2026-03-08T10:00:00Z"}],
             # 1. diag_odometer
             [{"device": {"id": "device1"}, "data": 100000, "dateTime": "2026-03-08T10:00:00Z"}],
             # 2. diag_odometer_raw

@@ -388,7 +388,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: (
-            dt_util.parse_datetime(data["dateTime"])
+            dt_util.parse_datetime(data.get("dateTime"))
             if isinstance(data.get("dateTime"), str)
             else data.get("dateTime")
         ),

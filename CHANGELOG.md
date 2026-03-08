@@ -2,7 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
-## [1.3.4] - 2026-03-08
+## [1.3.6] - 2026-03-08
+
+### Fixed
+- **Stability**: Refined `dateTime` sensor logic for improved data handling and robustness.
+- **Test Suite**: Updated test mocks and coordinator data to ensure consistent test coverage across different environments.
+
+## [1.3.3] - 2026-03-08
+
 
 ### Changed
 - **Improved Icons**: Updated the icon for Accelerator Position to `mdi:car-speed-limiter` and Throttle Position to `mdi:circle-slice-8` for better visual clarity and distinction.

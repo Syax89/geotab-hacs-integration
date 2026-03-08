@@ -19,6 +19,7 @@ def _make_coordinator(data=None):
             "longitude": 9.0,
             "isDriving": True,
             "speed": 50.0,
+            "dateTime": "2026-03-08T10:00:00Z",
             "odometer": 100000,
             "ignition": 1,
             "last_trip": {
