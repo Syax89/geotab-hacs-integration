@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.6] - 2026-03-08
+
+### Fixed
+- **Hotfix**: Resolved a `SyntaxError` in `api.py` introduced in the previous version that prevented the integration from loading correctly.
+
 ## [1.4.5] - 2026-03-08
 
 ### Fixed

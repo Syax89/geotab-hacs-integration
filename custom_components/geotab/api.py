@@ -259,6 +259,7 @@ class GeotabApiClient:
                 status["device"]["id"]: status
                 for status in status_results
                 if "device" in status
+            }
             # Map diagnostic data by device ID and key
             diagnostics_map = defaultdict(dict)
             for diag_key, items in diagnostic_results_dict.items():
