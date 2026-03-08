@@ -1,90 +1,100 @@
-# Geotab Integration for Home Assistant (unofficial)
+# Geotab Integration for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 ![GitHub Release](https://img.shields.io/github/v/release/Syax89/geotab-hacs-integration?style=for-the-badge)
 ![License](https://img.shields.io/github/license/Syax89/geotab-hacs-integration?style=for-the-badge)
 
-Monitor your Geotab vehicles and devices directly from Home Assistant. This integration connects to the MyGeotab API to retrieve real-time location, comprehensive diagnostic data, and active fault codes with full DTC details.
+A professional-grade Home Assistant integration for the Geotab fleet management platform. This component facilitates the seamless synchronization of telematics data, providing comprehensive vehicle monitoring, diagnostic analysis, and real-time tracking directly within the Home Assistant ecosystem.
 
 ---
 
-## ✨ Features
+## 🛠 Key Capabilities
 
-* **🛰️ Real-time Location Tracking**: Dedicated `device_tracker` entity for every vehicle.
-* **📊 Comprehensive Sensors**:
-  * **Driving Dynamics**: Speed (km/h) and Odometer (km).
-  * **Battery & Fuel**: Real-time voltage and fuel level percentage.
-  * **Tires**: Individual pressure monitoring for all four tires (PSI).
-  * **Diagnostics**: Engine Speed (RPM), Coolant Temp, Engine Hours, and Accelerator Position.
-  * **Last Trip**: Distance and details of the most recent completed journey.
-* **🚨 Advanced Binary Sensors**:
-  * **Driving Status**: Instant feedback on vehicle movement.
-  * **Active Faults**: Detects diagnostic trouble codes (DTC) with detailed attributes:
-    * Fault codes (e.g., P0135, 130-136 for device issues)
-    * Human-readable descriptions
-    * Timestamp of occurrence
-    * Severity indicators (lamp status)
-  * **Safety & Status**: Door Ajar and Seatbelt status (disabled by default).
-* **🛡️ Security & Privacy**:
-  * **Data Masking**: Account emails are hidden from public UI views.
-  * **Resilience**: Graceful error handling and automated recovery (UpdateFailed support).
-  * **API Protection**: Built-in rate limit protection (min 30s interval).
-* **🌍 Multi-language**: Full support for **English** and **Italian**.
+* **High-Precision Tracking**: Dedicated `device_tracker` entities providing real-time geographical coordinates for all fleet assets.
+* **Diagnostic Trouble Codes (DTC)**: Advanced monitoring of active engine faults with detailed reporting on fault codes, human-readable descriptions, and severity indicators (lamp status).
+* **Extended Telematics**: Access to over 30 distinct data points per vehicle, including fuel metrics, tire pressures, and engine health parameters.
+* **Historical Aggregation**: Built-in calculation of daily, weekly, and monthly trip statistics, including distance covered and idle time analysis.
+* **Internationalization**: Full localization support for English, Italian, German, Spanish, French, Dutch, and Portuguese.
 
 ---
 
-## 🚀 Installation
+## 📊 Data Points & Sensor Organization
 
-### Method 1: HACS (Recommended)
+Entities are logically categorized to ensure a streamlined user interface and efficient data management:
 
-This integration is available as a **Custom Repository**:
+### Primary Status
+* **Odometer**: Total cumulative distance.
+* **Fuel Level**: Real-time percentage of remaining fuel.
 
-1. Open **HACS** > `Integrations`.
-2. Click the three dots (top right) > `Custom repositories`.
-3. Paste the URL: `https://github.com/Syax89/geotab-hacs-integration`
-4. Select Category: `Integration` and click `Add`.
-5. Search for "Geotab" and click `Install`.
-6. **Restart Home Assistant**.
+### Performance & Driving
+* **Real-time Velocity**: Current speed in km/h.
+* **Fuel Rate**: Instantaneous fuel consumption (L/h).
 
-### Method 2: Manual
+### Engine Health & Diagnostics
+* **Powertrain Metrics**: Engine Speed (RPM), Engine Load, and total Engine Hours.
+* **Thermal Management**: Coolant, Oil, and Transmission fluid temperatures.
+* **Electrical System**: Real-time battery voltage monitoring.
 
-1. Download the [latest release](https://github.com/Syax89/geotab-hacs-integration/releases).
-2. Copy the `custom_components/geotab` folder into your HA `<config>/custom_components/` directory.
+### Chassis & Environment
+* **Tire Pressure Monitoring (TPMS)**: Individual pressure readings for all four wheels (PSI).
+* **Environmental Data**: Ambient air temperature.
+* **Control Surfaces**: Accelerator and throttle position percentages.
+
+### Trip Statistics
+* **Aggregated Metrics**: Daily, weekly, and monthly distance tracking.
+* **Operational Analysis**: Trip counts and weekly idle time reports.
+* **Last Journey**: Comprehensive data on the most recently completed trip.
+
+---
+
+## 🚀 Installation & Deployment
+
+### Recommended: HACS Deployment
+
+1. Navigate to **HACS** > **Integrations**.
+2. Select the overflow menu (three dots) and choose **Custom repositories**.
+3. Input the following URL: `https://github.com/Syax89/geotab-hacs-integration`
+4. Set the category to **Integration** and click **Add**.
+5. Search for **Geotab**, select **Install**, and subsequently **Restart Home Assistant**.
+
+### Manual Deployment
+
+1. Obtain the latest release archive from the [Releases page](https://github.com/Syax89/geotab-hacs-integration/releases).
+2. Extract the `custom_components/geotab` directory into your Home Assistant `/config/custom_components/` path.
 3. **Restart Home Assistant**.
 
 ---
 
 ## ⚙️ Configuration
 
-1. Go to `Settings` > `Devices & Services`.
-2. Click `Add Integration` > Search for **Geotab**.
-3. Enter your credentials:
-   * **Username**: Your MyGeotab email.
-   * **Password**: Your MyGeotab password.
-   * **Database**: Your Geotab database name (e.g., `my.geotab.com/your_db`).
-   * **Scan Interval**: Update frequency (minimum 30 seconds).
+1. Access **Settings** > **Devices & Services**.
+2. Select **Add Integration** and search for **Geotab**.
+3. Provide the required authentication and connectivity parameters:
+   * **Username**: Authorized MyGeotab account email.
+   * **Password**: Associated account password.
+   * **Database**: Target Geotab database identifier (e.g., `my.geotab.com/database_id`).
+   * **Scan Interval**: Frequency of API polling (Minimum: 30 seconds).
 
-> [!TIP]
-> You can update the **Scan Interval** anytime by clicking the **Configure** (gear icon) button on the integration card.
-
----
-
-## 📖 Documentation
-
-For detailed entity documentation, troubleshooting guides, and automation examples, see our [Documentation folder](docs/).
+*Note: Integration parameters can be modified post-installation via the **Configure** interface.*
 
 ---
 
-## 🤝 Contributions
+## 🛡️ Technical Integrity & Security
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more details.
-
----
-
-## ⚖️ License
-
-Released under the **MIT License**. See [LICENSE](LICENSE) for details.
+* **API Optimization**: Utilizes an asynchronous architecture to minimize blocking calls and optimize performance during high-volume data retrieval.
+* **Resilience**: Features a robust circuit breaker mechanism and automated error recovery to handle API outages or connectivity fluctuations gracefully.
+* **Privacy**: Implements data masking protocols for sensitive account information within the public-facing user interface.
 
 ---
 
-*Disclaimer: This is an unofficial integration and is not affiliated with or endorsed by Geotab Inc.*
+## 📖 Further Documentation
+
+For comprehensive technical specifications, automation templates, and advanced troubleshooting, please refer to the [Documentation folder](docs/).
+
+---
+
+## ⚖️ License & Disclaimer
+
+Distributed under the **MIT License**. Refer to the [LICENSE](LICENSE) file for the full legal text.
+
+*Disclaimer: This project is an independent, community-driven integration and is neither affiliated with nor endorsed by Geotab Inc.*
