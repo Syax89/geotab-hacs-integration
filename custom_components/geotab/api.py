@@ -223,8 +223,8 @@ class GeotabApiClient:
             trip_results_dict: dict[str, list[dict]] = {}
             diagnostics_lookup = {}
 
-            for i, result in enumerate(results):
-                key = call_map[i]
+            for i, key in enumerate(call_map):
+                result = results[i]
                 if key == "status":
                     status_results = result
                 elif key == "diagnostics_lookup":

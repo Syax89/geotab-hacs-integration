@@ -120,7 +120,7 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
         key="is_driving",
         name="Driving",
         device_class=BinarySensorDeviceClass.MOVING,
-        is_on_fn=lambda data: data.get("isDriving"),
+        is_on_fn=lambda data: bool(data.get("isDriving")),
     ),
     GeotabBinarySensorEntityDescription(
         key="ignition",
