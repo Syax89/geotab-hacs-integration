@@ -20,25 +20,25 @@ def mock_geotab_api():
         # Mock for .get("Device")
         instance.get.return_value = [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}]
 
-        # Prepare mock results for multi_call: status, 24 diagnostics, faults, diagnostics_lookup, and trips
+        # Prepare mock results for multi_call: status, 25 diagnostics, faults, diagnostics_lookup, and trips
         # Order MUST match api.py _blocking_fetch_all and const.py DIAGNOSTICS_TO_FETCH
         instance.multi_call.return_value = [
             # 0. Status
             [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 1. diag_odometer (Adjustment)
-            [{"device": {"id": "device1"}, "data": 100000, "dateTime": "9999-12-31T23:59:59Z"}],
+            # 1. diag_odometer (AdjustmentId)
+            [{"device": {"id": "device1"}, "data": 53203700, "dateTime": "9999-12-31T23:59:59Z"}],
             # 2. diag_odometer_raw (OdometerId)
-            [{"device": {"id": "device1"}, "data": 100000, "dateTime": "2026-03-08T10:00:00Z"}],
+            [{"device": {"id": "device1"}, "data": 52015700, "dateTime": "2026-03-08T10:00:00Z"}],
             # 3. diag_total_distance
-            [{"device": {"id": "device1"}, "data": 100000, "dateTime": "2026-03-08T10:00:00Z"}],
+            [{"device": {"id": "device1"}, "data": 53203700, "dateTime": "2026-03-08T10:00:00Z"}],
             # 4. diag_ignition
             [{"device": {"id": "device1"}, "data": 1, "dateTime": "2026-03-08T10:00:00Z"}],
             # 5. diag_voltage
             [{"device": {"id": "device1"}, "data": 13.5, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 6. diag_fuel_level
-            [{"device": {"id": "device1"}, "data": 75.0, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 7. diag_fuel_level_raw
+            # 6. diag_fuel_level (PercentageId)
             [{"device": {"id": "device1"}, "data": 38.03, "dateTime": "2026-03-08T10:00:00Z"}],
+            # 7. diag_fuel_level_raw (FuelLevelId)
+            [{"device": {"id": "device1"}, "data": 33.32, "dateTime": "2026-03-08T10:00:00Z"}],
             # 8. diag_fuel_rate
             [{"device": {"id": "device1"}, "data": 8.5, "dateTime": "2026-03-08T10:00:00Z"}],
             # 9. diag_rpm

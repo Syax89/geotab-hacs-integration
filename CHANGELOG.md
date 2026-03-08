@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.4] - 2026-03-08
+
+### Fixed
+- **CI Stability**: Synchronized test fixtures (`conftest.py`) with the new sensor count and diagnostic ordering to restore passing test states.
+
 ## [1.4.3] - 2026-03-08
 
 ### Fixed
