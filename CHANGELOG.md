@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.9] - 2026-03-14
+
+### Changed
+- **Odometer Source**: Switched primary odometer to `DiagnosticOdometerId` (ECU-reported, lightweight, updated at ignition on/off). The previous `DiagnosticOdometerAdjustmentId` (hybrid ECM+GPS, expensive API call, can drift over time) is now a diagnostic fallback sensor.
+- **Trip Lookback**: Reduced trip history fetch window from 90 to 30 days. All trip stats (daily/weekly/monthly) only use the last 30 days, so the extra 60 days of data was unnecessary API overhead.
+- **Sensor Renamed**: `odometer_raw` sensor renamed to `odometer_adjustment` to accurately reflect its data source (Geotab's hybrid adjustment value, not raw ECU data).
+
 ## [1.4.8] - 2026-03-14
 
 ### Fixed

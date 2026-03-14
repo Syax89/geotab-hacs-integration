@@ -25,10 +25,10 @@ def mock_geotab_api():
         instance.multi_call.return_value = [
             # 0. Status
             [{"device": {"id": "device1"}, "latitude": 45.0, "longitude": 9.0, "isDriving": True, "speed": 50.0, "dateTime": "2026-03-08T10:00:00Z"}],
-            # 1. diag_odometer (AdjustmentId)
-            [{"device": {"id": "device1"}, "data": 53203700, "dateTime": "9999-12-31T23:59:59Z"}],
-            # 2. diag_odometer_raw (OdometerId)
+            # 1. diag_odometer (OdometerId — ECU corrected, primary)
             [{"device": {"id": "device1"}, "data": 52015700, "dateTime": "2026-03-08T10:00:00Z"}],
+            # 2. diag_odometer_adjustment (AdjustmentId — hybrid ECM+GPS, fallback)
+            [{"device": {"id": "device1"}, "data": 53203700, "dateTime": "9999-12-31T23:59:59Z"}],
             # 3. diag_total_distance
             [{"device": {"id": "device1"}, "data": 53203700, "dateTime": "2026-03-08T10:00:00Z"}],
             # 4. diag_ignition
