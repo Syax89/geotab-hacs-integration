@@ -255,7 +255,11 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         suggested_display_precision=1,
-        value_fn=lambda data: (data.get("tire_pressure_front_left") or 0) * PA_TO_PSI,
+        value_fn=lambda data: (
+            data.get("tire_pressure_front_left") * PA_TO_PSI
+            if data.get("tire_pressure_front_left") is not None
+            else None
+        ),
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_right",
@@ -266,7 +270,11 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         suggested_display_precision=1,
-        value_fn=lambda data: (data.get("tire_pressure_front_right") or 0) * PA_TO_PSI,
+        value_fn=lambda data: (
+            data.get("tire_pressure_front_right") * PA_TO_PSI
+            if data.get("tire_pressure_front_right") is not None
+            else None
+        ),
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_left",
@@ -277,7 +285,11 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         suggested_display_precision=1,
-        value_fn=lambda data: (data.get("tire_pressure_rear_left") or 0) * PA_TO_PSI,
+        value_fn=lambda data: (
+            data.get("tire_pressure_rear_left") * PA_TO_PSI
+            if data.get("tire_pressure_rear_left") is not None
+            else None
+        ),
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_right",
@@ -288,7 +300,11 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         suggested_display_precision=1,
-        value_fn=lambda data: (data.get("tire_pressure_rear_right") or 0) * PA_TO_PSI,
+        value_fn=lambda data: (
+            data.get("tire_pressure_rear_right") * PA_TO_PSI
+            if data.get("tire_pressure_rear_right") is not None
+            else None
+        ),
     ),
     GeotabSensorEntityDescription(
         key="accelerator_pos",
