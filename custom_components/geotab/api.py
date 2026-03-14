@@ -145,7 +145,7 @@ class GeotabApiClient:
 
         # Trips (only when include_trips=True)
         if include_trips:
-            from_date = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+            from_date = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
             for device in devices:
                 device_id = device["id"]
                 calls.append(
@@ -315,11 +315,10 @@ class GeotabApiClient:
                     data.update(diag_data)
 
                     # Robust fallback for odometer
+                    # Priority: OdometerId (ECU, lightweight) → AdjustmentId (hybrid) → TotalDistance (GPS)
                     if not data.get("odometer"):
                         if diag_data.get("odometer_adjustment"):
                             data["odometer"] = diag_data["odometer_adjustment"]
-                        elif diag_data.get("odometer_raw"):
-                            data["odometer"] = diag_data["odometer_raw"]
                         elif diag_data.get("total_distance"):
                             data["odometer"] = diag_data["total_distance"]
 

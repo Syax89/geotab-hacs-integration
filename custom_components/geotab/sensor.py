@@ -60,8 +60,8 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         ),
     ),
     GeotabSensorEntityDescription(
-        key="odometer_raw",
-        translation_key="odometer_raw",
+        key="odometer_adjustment",
+        translation_key="odometer_adjustment",
         icon="mdi:counter",
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
@@ -69,7 +69,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         suggested_display_precision=1,
         value_fn=lambda data: (
-            data.get("odometer_raw", 0) / 1000 if data.get("odometer_raw") is not None else None
+            data.get("odometer_adjustment", 0) / 1000 if data.get("odometer_adjustment") is not None else None
         ),
         entity_registry_enabled_default=False,
     ),
