@@ -73,6 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 raise UpdateFailed(f"Circuit breaker open, retrying in {remaining}s")
             _LOGGER.info("Geotab circuit breaker: attempting reset.")
             circuit_open_since = None
+            consecutive_failures = 0
 
         # Determine if we should fetch trips this cycle
         now = dt_util.utcnow().timestamp()

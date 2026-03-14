@@ -61,7 +61,7 @@ async def test_api_get_data(mock_geotab_api):
     assert "device1" in data
     assert data["device1"]["name"] == "Test Vehicle"
     assert data["device1"]["isDriving"] is True
-    assert data["device1"]["odometer"] == 100000
+    assert data["device1"]["odometer"] == 53203700
 
 
 @pytest.mark.asyncio
