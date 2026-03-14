@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.8] - 2026-03-14
+
+### Fixed
+- **Tire Pressure Sensors**: Fixed all four tire pressure sensors showing `0 PSI` instead of "unavailable" when no data is present from the vehicle.
+- **Circuit Breaker Recovery**: Fixed the circuit breaker not resetting its failure counter after the cooldown period, which caused it to re-open immediately on the first subsequent error.
+- **Entity Stability**: Fixed a `KeyError` crash that occurred when a vehicle was removed from the Geotab fleet while the integration was running. Entities now gracefully become "unavailable".
+- **Code Cleanup**: Removed unused `DeviceInfo` import from `device_tracker.py`.
+
 ## [1.4.7] - 2026-03-08
 
 ### Fixed
