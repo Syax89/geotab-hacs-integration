@@ -14,6 +14,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    DEGREE,
     PERCENTAGE,
     REVOLUTIONS_PER_MINUTE,
     UnitOfElectricPotential,
@@ -22,6 +23,7 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfTemperature,
     UnitOfTime,
+    UnitOfVolume,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
@@ -126,6 +128,33 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         value_fn=lambda data: data.get("fuel_level_raw"),
         entity_registry_enabled_default=False,
     ),
+    GeotabSensorEntityDescription(
+        key="fuel_tank_capacity",
+        translation_key="fuel_tank_capacity",
+        icon="mdi:gas-cylinder",
+        native_unit_of_measurement=UnitOfVolume.LITERS,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("fuelTankCapacity"),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="vehicle_vin",
+        translation_key="vehicle_vin",
+        icon="mdi:card-text-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("vehicleIdentificationNumber")
+        or data.get("engineVehicleIdentificationNumber"),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="device_time_zone",
+        translation_key="device_time_zone",
+        icon="mdi:clock-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("timeZoneId"),
+        entity_registry_enabled_default=False,
+    ),
     # ── Performance & Driving ───────────────────────────────────────────
     GeotabSensorEntityDescription(
         key="speed",
@@ -135,6 +164,15 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.SPEED,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("speed"),
+    ),
+    GeotabSensorEntityDescription(
+        key="bearing",
+        translation_key="bearing",
+        icon="mdi:compass-outline",
+        native_unit_of_measurement=DEGREE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("bearing"),
+        entity_registry_enabled_default=False,
     ),
     GeotabSensorEntityDescription(
         key="fuel_rate",

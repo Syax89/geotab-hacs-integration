@@ -2,11 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.3] - 2026-03-18
+
+### Changed
+- **Vehicle Telemetry**: Added optional entities for VIN, device time zone, fuel tank capacity, bearing, device communication state, and low vehicle battery warnings derived from live Geotab data.
+
+### Fixed
+- **Localization**: Added labels for the new telemetry entities across the bundled translations.
+- **Documentation**: Expanded the README feature summary to reflect the additional vehicle diagnostics now exposed by the integration.
+
 ## [1.5.2] - 2026-03-18
 
 ### Changed
 - **Repository Metadata**: Improved manifest, HACS metadata, and service descriptions for a cleaner Home Assistant and HACS experience.
 - **Trip Entities**: Added optional sensors for last trip average speed and last trip duration, and expanded last-trip attributes with average speed details.
+- **Live Vehicle Coverage**: Added optional sensors for bearing, fuel tank capacity, and device communication state using data already returned by Geotab vehicles.
+- **Vehicle Details**: Added optional VIN, device time zone, and low vehicle battery entities from fields and active faults already exposed by Geotab.
 
 ### Fixed
 - **Documentation**: Refined the README to better explain installation, available entities, and the built-in refresh service.

@@ -29,7 +29,11 @@
       "total_distance": { "name": "Kilometerzähler (Gesamtstrecke)" },
       "fuel_level": { "name": "Kraftstoffstand" },
       "fuel_level_raw": { "name": "Kraftstoffstand (Rohdaten)" },
+      "fuel_tank_capacity": { "name": "Tankkapazität" },
+      "vehicle_vin": { "name": "Fahrzeug-VIN" },
+      "device_time_zone": { "name": "Geräte-Zeitzone" },
       "speed": { "name": "Geschwindigkeit" },
+      "bearing": { "name": "Richtung" },
       "fuel_rate": { "name": "Kraftstoffverbrauch" },
       "voltage": { "name": "Batteriespannung" },
       "rpm": { "name": "Motor: Drehzahl" },
@@ -62,6 +66,8 @@
       "is_driving": { "name": "Fahren" },
       "ignition": { "name": "Zündung" },
       "active_faults": { "name": "Aktive Fehler" },
+      "device_communicating": { "name": "Gerät verbunden" },
+      "low_vehicle_battery": { "name": "Niedrige Fahrzeugbatterie" },
       "door_status": { "name": "Tür offen" },
       "seatbelt_status": { "name": "Sicherheitsgurt" }
     }

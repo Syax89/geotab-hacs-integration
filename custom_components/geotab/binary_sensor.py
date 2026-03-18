@@ -25,6 +25,17 @@ from .const import DOMAIN, FAULT_DIAGNOSTIC_NAMES
 from .entity import GeotabEntity
 
 
+def _has_active_fault(data: dict, diagnostic_fragment: str) -> bool:
+    """Return whether active faults contain a diagnostic fragment."""
+    for fault in data.get("active_faults", []):
+        diagnostic = fault.get("diagnostic")
+        if isinstance(diagnostic, dict):
+            diagnostic_id = diagnostic.get("id")
+            if isinstance(diagnostic_id, str) and diagnostic_fragment in diagnostic_id:
+                return True
+    return False
+
+
 def _format_fault_attributes(faults: list, diagnostics_lookup: dict | None = None) -> dict[str, Any]:
     """Format fault data into readable attributes."""
     if not faults:
@@ -140,6 +151,22 @@ BINARY_SENSORS: tuple[GeotabBinarySensorEntityDescription, ...] = (
             data.get("active_faults", []),
             data.get("_diagnostics_lookup"),
         ),
+    ),
+    GeotabBinarySensorEntityDescription(
+        key="device_communicating",
+        translation_key="device_communicating",
+        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: bool(data.get("isDeviceCommunicating")),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabBinarySensorEntityDescription(
+        key="low_vehicle_battery",
+        translation_key="low_vehicle_battery",
+        device_class=BinarySensorDeviceClass.BATTERY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: _has_active_fault(data, "VehicleBatteryLowVoltage"),
+        entity_registry_enabled_default=False,
     ),
     # ── Safety & Environment ────────────────────────────────────────────
     GeotabBinarySensorEntityDescription(

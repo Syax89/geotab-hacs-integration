@@ -29,7 +29,11 @@
       "total_distance": { "name": "Odomômetro (Distância total)" },
       "fuel_level": { "name": "Nível de combustível" },
       "fuel_level_raw": { "name": "Nível de combustível (Dados brutos)" },
+      "fuel_tank_capacity": { "name": "Capacidade do tanque" },
+      "vehicle_vin": { "name": "VIN do veículo" },
+      "device_time_zone": { "name": "Fuso horário do dispositivo" },
       "speed": { "name": "Velocidade" },
+      "bearing": { "name": "Direção" },
       "fuel_rate": { "name": "Consumo de combustível" },
       "voltage": { "name": "Tensão da bateria" },
       "rpm": { "name": "Motor: RPM" },
@@ -62,6 +66,8 @@
       "is_driving": { "name": "Conduzindo" },
       "ignition": { "name": "Ignição" },
       "active_faults": { "name": "Falhas ativas" },
+      "device_communicating": { "name": "Dispositivo comunicando" },
+      "low_vehicle_battery": { "name": "Bateria do veículo baixa" },
       "door_status": { "name": "Porta aberta" },
       "seatbelt_status": { "name": "Cinto de segurança" }
     }

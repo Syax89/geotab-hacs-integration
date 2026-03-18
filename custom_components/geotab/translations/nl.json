@@ -29,7 +29,11 @@
       "total_distance": { "name": "Kilometerteller (Totale afstand)" },
       "fuel_level": { "name": "Brandstofniveau" },
       "fuel_level_raw": { "name": "Brandstofniveau (Ruwe gegevens)" },
+      "fuel_tank_capacity": { "name": "Tankinhoud" },
+      "vehicle_vin": { "name": "Voertuig-VIN" },
+      "device_time_zone": { "name": "Tijdzone apparaat" },
       "speed": { "name": "Snelheid" },
+      "bearing": { "name": "Richting" },
       "fuel_rate": { "name": "Brandstofverbruik" },
       "voltage": { "name": "Batterijspanning" },
       "rpm": { "name": "Motor: Toerental" },
@@ -62,6 +66,8 @@
       "is_driving": { "name": "Rijdend" },
       "ignition": { "name": "Ontsteking" },
       "active_faults": { "name": "Actieve fouten" },
+      "device_communicating": { "name": "Apparaat communiceert" },
+      "low_vehicle_battery": { "name": "Lage voertuigaccu" },
       "door_status": { "name": "Deur open" },
       "seatbelt_status": { "name": "Veiligheidsgordel" }
     }

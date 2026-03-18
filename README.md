@@ -13,6 +13,7 @@ A Home Assistant integration for the Geotab fleet management platform. It brings
 * **High-Precision Tracking**: Dedicated `device_tracker` entities providing real-time geographical coordinates for all fleet assets.
 * **Diagnostic Trouble Codes (DTC)**: Advanced monitoring of active engine faults with detailed reporting on fault codes, human-readable descriptions, and severity indicators (lamp status).
 * **Extended Telematics**: Access to over 30 distinct data points per vehicle, including fuel metrics, tire pressures, and engine health parameters.
+* **Fleet Diagnostics**: Optional sensors expose bearing, fuel tank capacity, VIN, device time zone, communication status, low-battery warnings, and enriched last-trip metrics when the vehicle provides them.
 * **Historical Aggregation**: Built-in calculation of daily, weekly, and monthly trip statistics, including distance covered, average driving speed, last-trip metrics, and idle time analysis.
 * **Internationalization**: Full localization support for English, Italian, German, Spanish, French, Dutch, and Portuguese.
 

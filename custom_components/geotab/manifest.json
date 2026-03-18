@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/Syax89/geotab-hacs-integration/issues",
   "loggers": ["mygeotab"],
   "requirements": ["mygeotab>=0.9.1,<1.0.0"],
-  "version": "1.5.2"
+  "version": "1.5.3"
 }
