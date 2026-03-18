@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.0] - 2026-03-18
+
+### Changed
+- **Polling Model**: Switched the integration to rely on `DeviceStatusInfo` diagnostics for current values, reducing redundant snapshot calls and keeping the data path closer to Geotab's real-time model.
+- **Fault Handling**: Cached diagnostic name lookups for Go faults and aligned active fault retrieval with a documented `state="Active"` search.
+
+### Fixed
+- **Credential Safety**: Removed hardcoded Geotab credentials from `debug_geotab.py`; local debug now requires `GEOTAB_USERNAME`, `GEOTAB_PASSWORD`, and `GEOTAB_DATABASE` environment variables.
+- **Entity Availability**: Geotab entities now become unavailable cleanly when a vehicle temporarily disappears from coordinator data instead of risking crashes.
+- **Sensor Accuracy**: Fuel rate, RPM, pedal positions, and tire pressure sensors no longer publish misleading zeroes when data is missing.
+- **Python Compatibility**: Replaced `asyncio.timeout()` with `asyncio.wait_for()` so the integration and tests run correctly on the current Python 3.9 test environment.
+
 ## [1.4.9] - 2026-03-14
 
 ### Changed
