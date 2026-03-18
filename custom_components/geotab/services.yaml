@@ -1,3 +1,4 @@
 refresh:
   name: Refresh
   description: Force an immediate data refresh from the Geotab API for all configured entries.
+  fields: {}

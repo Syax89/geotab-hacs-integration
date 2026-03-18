@@ -47,6 +47,8 @@
       "accelerator_pos": { "name": "Gaspedaalpositie" },
       "throttle_pos": { "name": "Gaskleppositie" },
       "last_trip_distance": { "name": "Afstand laatste rit" },
+      "last_trip_average_speed": { "name": "Gemiddelde snelheid laatste rit" },
+      "last_trip_duration": { "name": "Duur laatste rit" },
       "daily_distance": { "name": "Ritten: Dagelijkse afstand" },
       "weekly_distance": { "name": "Ritten: Wekelijkse afstand" },
       "monthly_distance": { "name": "Ritten: Maandelijkse afstand" },

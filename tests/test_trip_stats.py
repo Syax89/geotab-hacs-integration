@@ -25,6 +25,8 @@ monthly_distance = trip_stats.monthly_distance
 daily_trip_count = trip_stats.daily_trip_count
 weekly_trip_count = trip_stats.weekly_trip_count
 average_trip_speed = trip_stats.average_trip_speed
+last_trip_average_speed = trip_stats.last_trip_average_speed
+last_trip_duration_hours = trip_stats.last_trip_duration_hours
 total_idle_time_weekly = trip_stats.total_idle_time_weekly
 
 
@@ -33,6 +35,7 @@ def _make_trip(
     hours_ago: float = 1.0,
     max_speed: float = 80.0,
     avg_speed: float = 60.0,
+    driving_duration: str = "PT30M",
     idle_duration: str = "PT5M",
 ) -> dict:
     """Create a trip dict with a start time N hours ago."""
@@ -43,6 +46,7 @@ def _make_trip(
         "stop": (start + timedelta(minutes=30)).isoformat(),
         "maximumSpeed": max_speed,
         "averageSpeed": avg_speed,
+        "drivingDuration": driving_duration,
         "idlingDuration": idle_duration,
     }
 
@@ -138,6 +142,29 @@ class TestAverageTripSpeed:
 
     def test_empty(self):
         assert average_trip_speed([]) is None
+
+
+class TestLastTripHelpers:
+    """Tests for latest-trip helper functions."""
+
+    def test_last_trip_average_speed(self):
+        trip = _make_trip(avg_speed=63.4)
+        assert last_trip_average_speed(trip) == 63.4
+
+    def test_last_trip_duration_prefers_durations(self):
+        trip = _make_trip(driving_duration="PT30M", idle_duration="PT15M")
+        assert last_trip_duration_hours(trip) == 0.75
+
+    def test_last_trip_duration_falls_back_to_timestamps(self):
+        start = datetime.now(timezone.utc) - timedelta(minutes=42)
+        trip = {
+            "start": start.isoformat(),
+            "stop": (start + timedelta(minutes=42)).isoformat(),
+        }
+        assert last_trip_duration_hours(trip) == 0.7
+
+    def test_last_trip_duration_empty(self):
+        assert last_trip_duration_hours(None) is None
 
 
 class TestTotalIdleTimeWeekly:

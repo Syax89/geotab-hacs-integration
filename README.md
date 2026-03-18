@@ -4,7 +4,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/Syax89/geotab-hacs-integration?style=for-the-badge)
 ![License](https://img.shields.io/github/license/Syax89/geotab-hacs-integration?style=for-the-badge)
 
-A professional-grade Home Assistant integration for the Geotab fleet management platform. This component facilitates the seamless synchronization of telematics data, providing comprehensive vehicle monitoring, diagnostic analysis, and real-time tracking directly within the Home Assistant ecosystem.
+A Home Assistant integration for the Geotab fleet management platform. It brings live vehicle position, driving state, diagnostics, active faults, and trip statistics into Home Assistant through the standard UI and HACS.
 
 ---
 
@@ -13,7 +13,7 @@ A professional-grade Home Assistant integration for the Geotab fleet management 
 * **High-Precision Tracking**: Dedicated `device_tracker` entities providing real-time geographical coordinates for all fleet assets.
 * **Diagnostic Trouble Codes (DTC)**: Advanced monitoring of active engine faults with detailed reporting on fault codes, human-readable descriptions, and severity indicators (lamp status).
 * **Extended Telematics**: Access to over 30 distinct data points per vehicle, including fuel metrics, tire pressures, and engine health parameters.
-* **Historical Aggregation**: Built-in calculation of daily, weekly, and monthly trip statistics, including distance covered and idle time analysis.
+* **Historical Aggregation**: Built-in calculation of daily, weekly, and monthly trip statistics, including distance covered, average driving speed, last-trip metrics, and idle time analysis.
 * **Internationalization**: Full localization support for English, Italian, German, Spanish, French, Dutch, and Portuguese.
 
 ---
@@ -43,7 +43,7 @@ Entities are logically categorized to ensure a streamlined user interface and ef
 ### Trip Statistics
 * **Aggregated Metrics**: Daily, weekly, and monthly distance tracking.
 * **Operational Analysis**: Trip counts, average driving speed, and weekly idle time reports.
-* **Last Journey**: Comprehensive data on the most recently completed trip.
+* **Last Journey**: Dedicated last-trip distance, duration, and average-speed sensors.
 
 ---
 
@@ -76,6 +76,19 @@ Entities are logically categorized to ensure a streamlined user interface and ef
    * **Scan Interval**: Frequency of API polling (Minimum: 30 seconds).
 
 *Note: Integration parameters can be modified post-installation via the **Configure** interface.*
+
+### Included Entities
+
+By default the integration creates, for each Geotab vehicle:
+
+* a `device_tracker` entity for live position
+* primary sensors such as odometer, fuel level, speed, and last update
+* binary sensors for ignition, driving state, and active faults
+* optional diagnostic and trip-analysis sensors that can be enabled from the entity registry
+
+### Built-In Service
+
+The integration registers the `geotab.refresh` service, which triggers an immediate refresh for all configured Geotab entries.
 
 ---
 

@@ -319,6 +319,29 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         ),
     ),
     GeotabSensorEntityDescription(
+        key="last_trip_average_speed",
+        translation_key="last_trip_average_speed",
+        icon="mdi:speedometer-medium",
+        native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        device_class=SensorDeviceClass.SPEED,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: trip_stats.last_trip_average_speed(
+            data.get("last_trip")
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
+        key="last_trip_duration",
+        translation_key="last_trip_duration",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: trip_stats.last_trip_duration_hours(
+            data.get("last_trip")
+        ),
+        entity_registry_enabled_default=False,
+    ),
+    GeotabSensorEntityDescription(
         key="daily_distance",
         translation_key="daily_distance",
         icon="mdi:map-marker-path",
@@ -474,6 +497,7 @@ class GeotabSensor(GeotabEntity, SensorEntity):
                 return {
                     "start": trip.get("start"),
                     "stop": trip.get("stop"),
+                    "average_speed": trip.get("averageSpeed"),
                     "maximum_speed": trip.get("maximumSpeed"),
                     "driving_duration": trip.get("drivingDuration"),
                     "idling_duration": trip.get("idlingDuration"),

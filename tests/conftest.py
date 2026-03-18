@@ -75,8 +75,8 @@ def mock_geotab_api():
             }],
             # 2. Trip Result for device1
             [
-                {"id": "trip1", "distance": 15.0, "start": "2026-03-08T10:00:00Z", "stop": "2026-03-08T10:30:00Z", "maximumSpeed": 80, "drivingDuration": "PT25M", "idlingDuration": "PT5M"},
-                {"id": "trip2", "distance": 22.5, "start": "2026-03-07T08:00:00Z", "stop": "2026-03-07T08:45:00Z", "maximumSpeed": 100, "drivingDuration": "PT40M", "idlingDuration": "PT3M"},
+                {"id": "trip1", "distance": 15.0, "start": "2026-03-08T10:00:00Z", "stop": "2026-03-08T10:30:00Z", "maximumSpeed": 80, "averageSpeed": 55, "drivingDuration": "PT25M", "idlingDuration": "PT5M"},
+                {"id": "trip2", "distance": 22.5, "start": "2026-03-07T08:00:00Z", "stop": "2026-03-07T08:45:00Z", "maximumSpeed": 100, "averageSpeed": 70, "drivingDuration": "PT40M", "idlingDuration": "PT3M"},
             ],
         ]
         yield instance

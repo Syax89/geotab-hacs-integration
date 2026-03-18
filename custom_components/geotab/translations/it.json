@@ -47,6 +47,8 @@
       "accelerator_pos": { "name": "Posizione Acceleratore" },
       "throttle_pos": { "name": "Posizione Farfalla" },
       "last_trip_distance": { "name": "Distanza Ultimo Viaggio" },
+      "last_trip_average_speed": { "name": "Velocità Media Ultimo Viaggio" },
+      "last_trip_duration": { "name": "Durata Ultimo Viaggio" },
       "daily_distance": { "name": "Viaggi: Distanza Giornaliera" },
       "weekly_distance": { "name": "Viaggi: Distanza Settimanale" },
       "monthly_distance": { "name": "Viaggi: Distanza Mensile" },

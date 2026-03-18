@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.2] - 2026-03-18
+
+### Changed
+- **Repository Metadata**: Improved manifest, HACS metadata, and service descriptions for a cleaner Home Assistant and HACS experience.
+- **Trip Entities**: Added optional sensors for last trip average speed and last trip duration, and expanded last-trip attributes with average speed details.
+
+### Fixed
+- **Documentation**: Refined the README to better explain installation, available entities, and the built-in refresh service.
+- **Translations**: Added localized labels for the new last-trip sensors across the bundled translations.
+
 ## [1.5.1] - 2026-03-18
 
 ### Changed

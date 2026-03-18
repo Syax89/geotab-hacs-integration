@@ -47,6 +47,8 @@
       "accelerator_pos": { "name": "Gaspedalstellung" },
       "throttle_pos": { "name": "Drosselklappenstellung" },
       "last_trip_distance": { "name": "Letzte Fahrtstrecke" },
+      "last_trip_average_speed": { "name": "Letzte Fahrt: Durchschnittsgeschwindigkeit" },
+      "last_trip_duration": { "name": "Letzte Fahrt: Dauer" },
       "daily_distance": { "name": "Fahrten: Tägliche Strecke" },
       "weekly_distance": { "name": "Fahrten: Wöchentliche Strecke" },
       "monthly_distance": { "name": "Fahrten: Monatliche Strecke" },

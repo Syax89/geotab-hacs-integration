@@ -47,6 +47,8 @@
       "accelerator_pos": { "name": "Accelerator Position" },
       "throttle_pos": { "name": "Throttle Position" },
       "last_trip_distance": { "name": "Last Trip Distance" },
+      "last_trip_average_speed": { "name": "Last Trip Average Speed" },
+      "last_trip_duration": { "name": "Last Trip Duration" },
       "daily_distance": { "name": "Daily Distance" },
       "weekly_distance": { "name": "Weekly Distance" },
       "monthly_distance": { "name": "Monthly Distance" },

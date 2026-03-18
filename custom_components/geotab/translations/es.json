@@ -47,6 +47,8 @@
       "accelerator_pos": { "name": "Posición del acelerador" },
       "throttle_pos": { "name": "Posición de la mariposa" },
       "last_trip_distance": { "name": "Distancia del último viaje" },
+      "last_trip_average_speed": { "name": "Velocidad media del último viaje" },
+      "last_trip_duration": { "name": "Duración del último viaje" },
       "daily_distance": { "name": "Viajes: Distancia diaria" },
       "weekly_distance": { "name": "Viajes: Distancia semanal" },
       "monthly_distance": { "name": "Viajes: Distancia mensual" },

@@ -47,6 +47,8 @@
       "accelerator_pos": { "name": "Position de l'accélérateur" },
       "throttle_pos": { "name": "Position du papillon" },
       "last_trip_distance": { "name": "Distance du dernier trajet" },
+      "last_trip_average_speed": { "name": "Vitesse moyenne du dernier trajet" },
+      "last_trip_duration": { "name": "Durée du dernier trajet" },
       "daily_distance": { "name": "Trajets : Distance quotidienne" },
       "weekly_distance": { "name": "Trajets : Distance hebdomadaire" },
       "monthly_distance": { "name": "Trajets : Distance mensuelle" },

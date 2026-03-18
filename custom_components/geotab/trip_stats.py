@@ -91,6 +91,36 @@ def average_trip_speed(trips: list[dict]) -> float | None:
     return round(sum(speeds) / len(speeds), 1)
 
 
+def last_trip_average_speed(trip: dict | None) -> float | None:
+    """Return the average speed of the most recent trip (km/h)."""
+    if not trip:
+        return None
+    average_speed = trip.get("averageSpeed")
+    if average_speed is None:
+        return None
+    return round(float(average_speed), 1)
+
+
+def last_trip_duration_hours(trip: dict | None) -> float | None:
+    """Return the total duration of the most recent trip in hours."""
+    if not trip:
+        return None
+
+    driving_seconds = _parse_iso8601_duration(str(trip.get("drivingDuration") or ""))
+    idle_seconds = _parse_iso8601_duration(str(trip.get("idlingDuration") or ""))
+    total_seconds = driving_seconds + idle_seconds
+
+    if total_seconds == 0:
+        start = _parse_datetime(str(trip.get("start") or ""))
+        stop = _parse_datetime(str(trip.get("stop") or ""))
+        if start and stop and stop >= start:
+            total_seconds = (stop - start).total_seconds()
+
+    if total_seconds == 0:
+        return None
+    return round(total_seconds / 3600, 2)
+
+
 def total_idle_time_weekly(trips: list[dict]) -> float | None:
     """Total idle time (hours) across trips in the last 7 days."""
     recent = _filter_trips_since(trips, 7 * 24)
