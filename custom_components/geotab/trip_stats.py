@@ -83,9 +83,9 @@ def weekly_trip_count(trips: list[dict]) -> int:
 
 
 def average_trip_speed(trips: list[dict]) -> float | None:
-    """Average of maximumSpeed across trips in the last 7 days (km/h)."""
+    """Average driving speed across trips in the last 7 days (km/h)."""
     recent = _filter_trips_since(trips, 7 * 24)
-    speeds = [t["maximumSpeed"] for t in recent if t.get("maximumSpeed") is not None]
+    speeds = [t["averageSpeed"] for t in recent if t.get("averageSpeed") is not None]
     if not speeds:
         return None
     return round(sum(speeds) / len(speeds), 1)

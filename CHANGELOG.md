@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.1] - 2026-03-18
+
+### Changed
+- **Trip Metrics**: Updated the 7-day average speed sensor to use Geotab's trip `averageSpeed` so it now represents true driving speed instead of averaging peak speeds.
+- **API Load**: Reduced trip and fault fetch limits, and moved Go fault diagnostic lookups to on-demand loading so normal polling avoids an unnecessary extra multi-call payload.
+
+### Fixed
+- **Developer Documentation**: Added README instructions for running `debug_geotab.py` safely with environment variables.
+- **Translations**: Renamed the average speed sensor labels across all bundled translations to match the corrected metric.
+
 ## [1.5.0] - 2026-03-18
 
 ### Changed

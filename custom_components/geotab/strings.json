@@ -52,7 +52,7 @@
       "monthly_distance": { "name": "Monthly Distance" },
       "daily_trip_count": { "name": "Daily Trip Count" },
       "weekly_trip_count": { "name": "Weekly Trip Count" },
-      "average_trip_speed": { "name": "Average Trip Speed (7d)" },
+      "average_trip_speed": { "name": "Average Driving Speed (7d)" },
       "weekly_idle_time": { "name": "Weekly Idle Time" },
       "last_update": { "name": "Last Update" }
     },

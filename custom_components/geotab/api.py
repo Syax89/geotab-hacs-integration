@@ -16,8 +16,8 @@ from .const import DIAGNOSTICS_TO_FETCH
 _LOGGER = logging.getLogger(__name__)
 
 TRIP_HISTORY_DAYS = 30
-TRIP_RESULTS_LIMIT = 500
-FAULT_RESULTS_PER_DEVICE = 20
+TRIP_RESULTS_LIMIT = 250
+FAULT_RESULTS_PER_DEVICE = 10
 
 
 class GeotabApiClientError(Exception):
@@ -102,23 +102,11 @@ class GeotabApiClient:
                         "deviceSearch": {"deviceIds": device_ids},
                         "state": "Active",
                     },
-                    "resultsLimit": max(len(device_ids) * FAULT_RESULTS_PER_DEVICE, 100),
+                    "resultsLimit": max(len(device_ids) * FAULT_RESULTS_PER_DEVICE, 20),
                 },
             ),
         ]
         call_map = ["status", "faults"]
-
-        if not self._diagnostics_lookup_cache:
-            calls.append(
-                (
-                    "Get",
-                    {
-                        "typeName": "Diagnostic",
-                        "search": {"diagnosticType": "GoFault"},
-                    },
-                )
-            )
-            call_map.append("diagnostics_lookup")
 
         if include_trips:
             from_date = (
@@ -142,6 +130,19 @@ class GeotabApiClient:
 
         results = self.client.multi_call(calls)
         return devices, results, call_map
+
+    def _blocking_load_fault_diagnostics(self) -> dict[str, str]:
+        """Load diagnostic names for Geotab Go faults on demand."""
+        result = self.client.get("Diagnostic", search={"diagnosticType": "GoFault"})
+        lookup: dict[str, str] = {}
+        for diagnostic in result:
+            if not isinstance(diagnostic, dict):
+                continue
+            diagnostic_id = diagnostic.get("id")
+            diagnostic_name = diagnostic.get("name")
+            if diagnostic_id and diagnostic_name:
+                lookup[diagnostic_id] = diagnostic_name
+        return lookup
 
     def _extract_status_diagnostics(self, status_info: dict[str, Any]) -> dict[str, Any]:
         """Extract latest diagnostics already embedded in DeviceStatusInfo."""
@@ -178,6 +179,7 @@ class GeotabApiClient:
             fault_map: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
             trip_results_dict: dict[str, list[dict[str, Any]]] = {}
             diagnostics_lookup = dict(self._diagnostics_lookup_cache)
+            unknown_fault_diagnostic_ids: set[str] = set()
 
             for index, key in enumerate(call_map):
                 result = results[index]
@@ -205,15 +207,11 @@ class GeotabApiClient:
                         device = fault.get("device")
                         if isinstance(device, dict) and device.get("id"):
                             fault_map[device["id"]].append(fault)
-
-                elif key == "diagnostics_lookup" and isinstance(result, list):
-                    for diagnostic in result:
-                        if not isinstance(diagnostic, dict):
-                            continue
-                        diagnostic_id = diagnostic.get("id")
-                        diagnostic_name = diagnostic.get("name")
-                        if diagnostic_id and diagnostic_name:
-                            diagnostics_lookup[diagnostic_id] = diagnostic_name
+                            diagnostic = fault.get("diagnostic")
+                            if isinstance(diagnostic, dict):
+                                diagnostic_id = diagnostic.get("id")
+                                if diagnostic_id and diagnostic_id not in diagnostics_lookup:
+                                    unknown_fault_diagnostic_ids.add(diagnostic_id)
 
                 elif key.startswith("trip_") and isinstance(result, list):
                     device_id = key[5:]
@@ -228,6 +226,14 @@ class GeotabApiClient:
                             key=lambda trip: trip.get("start", ""),
                             reverse=True,
                         )
+
+            if unknown_fault_diagnostic_ids:
+                diagnostics_lookup.update(
+                    await asyncio.wait_for(
+                        loop.run_in_executor(None, self._blocking_load_fault_diagnostics),
+                        timeout=20,
+                    )
+                )
 
             self._diagnostics_lookup_cache = diagnostics_lookup
 

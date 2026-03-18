@@ -32,6 +32,7 @@ def _make_trip(
     distance: float = 10.0,
     hours_ago: float = 1.0,
     max_speed: float = 80.0,
+    avg_speed: float = 60.0,
     idle_duration: str = "PT5M",
 ) -> dict:
     """Create a trip dict with a start time N hours ago."""
@@ -41,6 +42,7 @@ def _make_trip(
         "start": start.isoformat(),
         "stop": (start + timedelta(minutes=30)).isoformat(),
         "maximumSpeed": max_speed,
+        "averageSpeed": avg_speed,
         "idlingDuration": idle_duration,
     }
 
@@ -125,10 +127,10 @@ class TestAverageTripSpeed:
 
     def test_average(self):
         trips = [
-            _make_trip(max_speed=80, hours_ago=1),
-            _make_trip(max_speed=120, hours_ago=24),
+            _make_trip(max_speed=80, avg_speed=55, hours_ago=1),
+            _make_trip(max_speed=120, avg_speed=85, hours_ago=24),
         ]
-        assert average_trip_speed(trips) == 100.0
+        assert average_trip_speed(trips) == 70.0
 
     def test_no_recent_trips(self):
         trips = [_make_trip(max_speed=80, hours_ago=200)]

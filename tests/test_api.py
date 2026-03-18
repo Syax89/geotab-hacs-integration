@@ -67,7 +67,7 @@ async def test_api_get_data(mock_geotab_api):
 @pytest.mark.asyncio
 async def test_api_get_data_empty_devices(mock_geotab_api):
     """Test that empty dict is returned when no devices exist."""
-    mock_geotab_api.get.return_value = []
+    mock_geotab_api.get.side_effect = lambda type_name, *args, **kwargs: [] if type_name == "Device" else []
     session = MagicMock()
     client = GeotabApiClient("user", "pass", "db", session)
     data = await client.async_get_full_device_data()

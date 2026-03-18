@@ -42,7 +42,7 @@ Entities are logically categorized to ensure a streamlined user interface and ef
 
 ### Trip Statistics
 * **Aggregated Metrics**: Daily, weekly, and monthly distance tracking.
-* **Operational Analysis**: Trip counts and weekly idle time reports.
+* **Operational Analysis**: Trip counts, average driving speed, and weekly idle time reports.
 * **Last Journey**: Comprehensive data on the most recently completed trip.
 
 ---
@@ -81,9 +81,24 @@ Entities are logically categorized to ensure a streamlined user interface and ef
 
 ## 🛡️ Technical Integrity & Security
 
-* **API Optimization**: Utilizes an asynchronous architecture to minimize blocking calls and optimize performance during high-volume data retrieval.
+* **API Optimization**: Utilizes an asynchronous architecture, cached fault metadata, and a reduced trip window to minimize unnecessary API load during high-volume polling.
 * **Resilience**: Features a robust circuit breaker mechanism and automated error recovery to handle API outages or connectivity fluctuations gracefully.
 * **Privacy**: Implements data masking protocols for sensitive account information within the public-facing user interface.
+
+---
+
+## 🧪 Local Debug
+
+The repository includes `debug_geotab.py` for manual local checks against the Geotab API.
+
+Before running it, export your credentials as environment variables instead of editing the file:
+
+```bash
+export GEOTAB_USERNAME="your@email.com"
+export GEOTAB_PASSWORD="your-password"
+export GEOTAB_DATABASE="your-database"
+python3 debug_geotab.py
+```
 
 ---
 

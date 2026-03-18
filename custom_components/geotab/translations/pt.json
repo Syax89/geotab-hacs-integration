@@ -52,7 +52,7 @@
       "monthly_distance": { "name": "Viagens: Distância mensal" },
       "daily_trip_count": { "name": "Viagens: Número de viagens diárias" },
       "weekly_trip_count": { "name": "Viagens: Número de viagens semanais" },
-      "average_trip_speed": { "name": "Viagens: Velocidade média (7d)" },
+      "average_trip_speed": { "name": "Viagens: Velocidade média em condução (7d)" },
       "weekly_idle_time": { "name": "Viagens: Tempo em marcha lenta semanal" },
       "last_update": { "name": "Última atualização" }
     },

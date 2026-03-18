@@ -17,10 +17,16 @@ def mock_geotab_api():
         instance = mock.return_value
         instance.authenticate.return_value = True
 
-        # Mock for .get("Device")
-        instance.get.return_value = [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}]
+        def _mock_get(type_name, *args, **kwargs):
+            if type_name == "Device":
+                return [{"id": "device1", "name": "Test Vehicle", "deviceType": "GO9"}]
+            if type_name == "Diagnostic":
+                return [{"id": "diag1", "name": "Test Diagnostic"}]
+            return []
 
-        # Prepare mock results for multi_call: status, faults, diagnostics lookup, and trips.
+        instance.get.side_effect = _mock_get
+
+        # Prepare mock results for multi_call: status, faults, and trips.
         # Order MUST match api.py _blocking_fetch_all.
         instance.multi_call.return_value = [
             # 0. Status
@@ -67,9 +73,7 @@ def mock_geotab_api():
                 "diagnostic": {"id": "diag1"},
                 "faultDescription": "Test fault"
             }],
-            # 2. Diagnostics Lookup
-            [{"id": "diag1", "name": "Test Diagnostic"}],
-            # 3. Trip Result for device1
+            # 2. Trip Result for device1
             [
                 {"id": "trip1", "distance": 15.0, "start": "2026-03-08T10:00:00Z", "stop": "2026-03-08T10:30:00Z", "maximumSpeed": 80, "drivingDuration": "PT25M", "idlingDuration": "PT5M"},
                 {"id": "trip2", "distance": 22.5, "start": "2026-03-07T08:00:00Z", "stop": "2026-03-07T08:45:00Z", "maximumSpeed": 100, "drivingDuration": "PT40M", "idlingDuration": "PT3M"},
