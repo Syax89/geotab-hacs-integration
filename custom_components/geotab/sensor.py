@@ -14,7 +14,6 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    EntityCategory,
     PERCENTAGE,
     REVOLUTIONS_PER_MINUTE,
     UnitOfElectricPotential,
@@ -25,6 +24,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
@@ -38,11 +38,39 @@ from .entity import GeotabEntity
 from . import trip_stats
 
 
-@dataclass(frozen=True, kw_only=True)
+def _value_when_present(data: dict, key: str, divisor: float | None = None) -> StateType:
+    """Return a numeric value only when present."""
+    value = data.get(key)
+    if value is None:
+        return None
+    if divisor is not None:
+        return value / divisor
+    return value
+
+
+def _value_with_offline_zero(data: dict, key: str) -> StateType:
+    """Return the live value, or zero only when ignition is explicitly off."""
+    value = data.get(key)
+    if value is not None:
+        return value
+    if data.get("ignition") == 0:
+        return 0
+    return None
+
+
+def _pressure_pa_to_psi(data: dict, key: str) -> StateType:
+    """Convert tire pressure to PSI when a value is available."""
+    value = data.get(key)
+    if value is None:
+        return None
+    return value * PA_TO_PSI
+
+
+@dataclass
 class GeotabSensorEntityDescription(SensorEntityDescription):
     """Describes a Geotab sensor entity."""
 
-    value_fn: Callable[[dict], StateType]
+    value_fn: Callable[[dict], StateType] = lambda _: None
 
 
 SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
@@ -54,10 +82,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("odometer", 0) / 1000 if data.get("odometer") is not None else None
-        ),
+        value_fn=lambda data: _value_when_present(data, "odometer", 1000),
     ),
     GeotabSensorEntityDescription(
         key="odometer_adjustment",
@@ -67,10 +92,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("odometer_adjustment", 0) / 1000 if data.get("odometer_adjustment") is not None else None
-        ),
+        value_fn=lambda data: _value_when_present(data, "odometer_adjustment", 1000),
         entity_registry_enabled_default=False,
     ),
 
@@ -83,10 +105,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("total_distance", 0) / 1000 if data.get("total_distance") is not None else None
-        ),
+        value_fn=lambda data: _value_when_present(data, "total_distance", 1000),
         entity_registry_enabled_default=False,
     ),
 
@@ -96,7 +115,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:gas-station",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("fuel_level"),
     ),
     GeotabSensorEntityDescription(
@@ -105,7 +123,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:gas-station-outline",
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("fuel_level_raw"),
         entity_registry_enabled_default=False,
     ),
@@ -117,7 +134,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
         device_class=SensorDeviceClass.SPEED,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("speed"),
     ),
     GeotabSensorEntityDescription(
@@ -126,10 +142,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:fuel",
         native_unit_of_measurement="L/h",
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("fuel_rate", 0) if data.get("ignition") == 1 else 0
-        ),
+        value_fn=lambda data: _value_with_offline_zero(data, "fuel_rate"),
         entity_registry_enabled_default=False,
     ),
     # ── Engine & Health (Diagnostics) ──────────────────────────────────
@@ -141,7 +154,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=2,
         value_fn=lambda data: data.get("voltage"),
     ),
     GeotabSensorEntityDescription(
@@ -151,10 +163,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=0,
-        value_fn=lambda data: (
-            data.get("rpm", 0) if data.get("ignition") == 1 else 0
-        ),
+        value_fn=lambda data: _value_with_offline_zero(data, "rpm"),
         entity_registry_enabled_default=False,
     ),
     GeotabSensorEntityDescription(
@@ -164,12 +173,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTime.HOURS,
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("engine_hours", 0) / 3600
-            if data.get("engine_hours") is not None
-            else None
-        ),
+        value_fn=lambda data: _value_when_present(data, "engine_hours", 3600),
     ),
     GeotabSensorEntityDescription(
         key="engine_load",
@@ -178,7 +182,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("engine_load"),
         entity_registry_enabled_default=False,
     ),
@@ -190,7 +193,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("coolant_temp"),
         entity_registry_enabled_default=False,
     ),
@@ -202,7 +204,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("oil_temp"),
         entity_registry_enabled_default=False,
     ),
@@ -214,7 +215,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: (
             data.get("oil_pressure") / 1000
             if data.get("oil_pressure") is not None
@@ -230,7 +230,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("ambient_temp"),
         entity_registry_enabled_default=False,
     ),
@@ -242,7 +241,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
         value_fn=lambda data: data.get("transmission_temp"),
         entity_registry_enabled_default=False,
     ),
@@ -254,12 +252,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("tire_pressure_front_left") * PA_TO_PSI
-            if data.get("tire_pressure_front_left") is not None
-            else None
-        ),
+        value_fn=lambda data: _pressure_pa_to_psi(data, "tire_pressure_front_left"),
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_front_right",
@@ -269,12 +262,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("tire_pressure_front_right") * PA_TO_PSI
-            if data.get("tire_pressure_front_right") is not None
-            else None
-        ),
+        value_fn=lambda data: _pressure_pa_to_psi(data, "tire_pressure_front_right"),
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_left",
@@ -284,12 +272,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("tire_pressure_rear_left") * PA_TO_PSI
-            if data.get("tire_pressure_rear_left") is not None
-            else None
-        ),
+        value_fn=lambda data: _pressure_pa_to_psi(data, "tire_pressure_rear_left"),
     ),
     GeotabSensorEntityDescription(
         key="tire_pressure_rear_right",
@@ -299,12 +282,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("tire_pressure_rear_right") * PA_TO_PSI
-            if data.get("tire_pressure_rear_right") is not None
-            else None
-        ),
+        value_fn=lambda data: _pressure_pa_to_psi(data, "tire_pressure_rear_right"),
     ),
     GeotabSensorEntityDescription(
         key="accelerator_pos",
@@ -313,10 +291,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("accelerator_pos", 0) if data.get("ignition") == 1 else 0
-        ),
+        value_fn=lambda data: _value_with_offline_zero(data, "accelerator_pos"),
         entity_registry_enabled_default=False,
     ),
     GeotabSensorEntityDescription(
@@ -326,10 +301,7 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=1,
-        value_fn=lambda data: (
-            data.get("throttle_pos", 0) if data.get("ignition") == 1 else 0
-        ),
+        value_fn=lambda data: _value_with_offline_zero(data, "throttle_pos"),
         entity_registry_enabled_default=False,
     ),
     # ── Trip Statistics ─────────────────────────────────────────────────
@@ -340,7 +312,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=2,
         value_fn=lambda data: (
             data.get("last_trip", {}).get("distance")
             if data.get("last_trip")
@@ -354,7 +325,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: trip_stats.daily_distance(
             data.get("trip_history", [])
         ),
@@ -367,7 +337,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: trip_stats.weekly_distance(
             data.get("trip_history", [])
         ),
@@ -380,7 +349,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         device_class=SensorDeviceClass.DISTANCE,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: trip_stats.monthly_distance(
             data.get("trip_history", [])
         ),
@@ -392,7 +360,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:counter",
         native_unit_of_measurement="trips",
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=0,
         value_fn=lambda data: trip_stats.daily_trip_count(
             data.get("trip_history", [])
         ),
@@ -404,7 +371,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:counter",
         native_unit_of_measurement="trips",
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=0,
         value_fn=lambda data: trip_stats.weekly_trip_count(
             data.get("trip_history", [])
         ),
@@ -417,7 +383,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
         device_class=SensorDeviceClass.SPEED,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=1,
         value_fn=lambda data: trip_stats.average_trip_speed(
             data.get("trip_history", [])
         ),
@@ -429,7 +394,6 @@ SENSORS: tuple[GeotabSensorEntityDescription, ...] = (
         icon="mdi:timer-sand",
         native_unit_of_measurement=UnitOfTime.HOURS,
         state_class=SensorStateClass.MEASUREMENT,
-        suggested_display_precision=2,
         value_fn=lambda data: trip_stats.total_idle_time_weekly(
             data.get("trip_history", [])
         ),

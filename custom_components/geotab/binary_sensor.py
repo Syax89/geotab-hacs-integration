@@ -12,8 +12,8 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
@@ -63,7 +63,7 @@ def _format_fault_attributes(faults: list, diagnostics_lookup: dict | None = Non
                         break
 
         # Extract description
-        description = fault.get("description", diagnostic_name)
+        description = fault.get("faultDescription") or fault.get("description") or diagnostic_name
         if not description or description == "N/A":
             description = diagnostic_name
 
@@ -106,11 +106,11 @@ def _format_fault_attributes(faults: list, diagnostics_lookup: dict | None = Non
     }
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass
 class GeotabBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Describes a Geotab binary sensor entity."""
 
-    is_on_fn: Callable[[dict], bool]
+    is_on_fn: Callable[[dict], bool] = lambda _: False
     attr_fn: Callable[[dict], dict[str, StateType]] | None = None
 
 
