@@ -66,7 +66,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             elapsed = (dt_util.utcnow() - circuit_open_since).total_seconds()
             if elapsed < CIRCUIT_BREAKER_RESET_DELAY:
                 remaining = int(CIRCUIT_BREAKER_RESET_DELAY - elapsed)
-                _LOGGER.warning(
+                # Already logged as an error when the breaker opened.
+                _LOGGER.debug(
                     "Geotab circuit breaker open, skipping update. Retrying in %ds.",
                     remaining,
                 )
@@ -134,6 +135,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
+        config_entry=entry,
         name="geotab_devices",
         update_method=async_update_data,
         update_interval=timedelta(seconds=scan_interval),
@@ -146,7 +148,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     # Store the coordinator in hass.data
-    coordinator.config_entry = entry
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     # Register the refresh service (once per domain)

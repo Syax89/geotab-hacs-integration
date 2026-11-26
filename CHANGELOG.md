@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.5] - 2026-11-26
+
+### Fixed
+- **Latest Trips Missing on Busy Vehicles**: The 30-day trip query was capped at 250 results and Geotab returns trips oldest-first, so vehicles with more than ~8 trips/day lost their most recent trips (wrong "last trip" and totals). Truncated results are now completed with follow-up pages starting from the newest trip received (bounded to 4 extra pages per device).
+- **Ignition Stuck "On"**: Ignition was forced on whenever the last known RPM was above zero, even if that reading was hours old. Ignition now comes from the driving state and the ignition diagnostic, and RPM is only used when it is recent (≤ 10 min) and newer than the last ignition record.
+- **Request Timeouts**: The mygeotab client now uses a 30 s per-request timeout instead of its 300 s default, so a slow API no longer leaves background requests running after Home Assistant gives up. Overall refresh budget raised to 90 s to cover trip pagination.
+- **Log Noise**: While the circuit breaker is open, skipped updates are logged at debug level instead of a warning every poll.
+
+### Changed
+- **Device Info**: Removed the misleading software version (it showed Geotab's internal object revision, not firmware).
+- **Minimum Home Assistant Version**: Declared `2024.11.0` in `hacs.json` (already required by the re-authentication flow).
+- **Code Cleanup**: Pass the config entry to the coordinator, modernized the options flow, updated deprecated imports, and removed unused constants and dead odometer fallbacks.
+
 ## [1.5.4] - 2026-11-26
 
 ### Added
