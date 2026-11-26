@@ -10,6 +10,13 @@
           "database": "Datenbank/Server",
           "scan_interval": "Scan-Intervall (Sekunden)"
         }
+      },
+      "reauth_confirm": {
+        "title": "Geotab erneut authentifizieren",
+        "description": "Das Passwort für {username} ({database}) ist nicht mehr gültig. Geben Sie das neue Passwort ein.",
+        "data": {
+          "password": "Passwort"
+        }
       }
     },
     "error": {
@@ -19,7 +26,8 @@
       "unknown": "Unerwarteter Fehler"
     },
     "abort": {
-      "already_configured": "Konto bereits konfiguriert."
+      "already_configured": "Konto bereits konfiguriert.",
+      "reauth_successful": "Erneute Authentifizierung erfolgreich."
     }
   },
   "entity": {

@@ -10,6 +10,13 @@
           "database": "Database/Server",
           "scan_interval": "Scan-interval (seconden)"
         }
+      },
+      "reauth_confirm": {
+        "title": "Geotab opnieuw verifiëren",
+        "description": "Het wachtwoord voor {username} ({database}) is niet meer geldig. Voer het nieuwe wachtwoord in.",
+        "data": {
+          "password": "Wachtwoord"
+        }
       }
     },
     "error": {
@@ -19,7 +26,8 @@
       "unknown": "Onverwachte fout"
     },
     "abort": {
-      "already_configured": "Account al geconfigureerd."
+      "already_configured": "Account al geconfigureerd.",
+      "reauth_successful": "Opnieuw verifiëren gelukt."
     }
   },
   "entity": {

@@ -10,6 +10,13 @@
           "database": "Base de données/Serveur",
           "scan_interval": "Intervalle de scan (secondes)"
         }
+      },
+      "reauth_confirm": {
+        "title": "Réauthentification Geotab",
+        "description": "Le mot de passe pour {username} ({database}) n'est plus valide. Saisissez le nouveau mot de passe.",
+        "data": {
+          "password": "Mot de passe"
+        }
       }
     },
     "error": {
@@ -19,7 +26,8 @@
       "unknown": "Erreur inattendue"
     },
     "abort": {
-      "already_configured": "Compte déjà configuré."
+      "already_configured": "Compte déjà configuré.",
+      "reauth_successful": "Réauthentification réussie."
     }
   },
   "entity": {

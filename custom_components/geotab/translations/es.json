@@ -10,6 +10,13 @@
           "database": "Base de datos/Servidor",
           "scan_interval": "Intervalo de escaneo (segundos)"
         }
+      },
+      "reauth_confirm": {
+        "title": "Reautenticar Geotab",
+        "description": "La contraseña de {username} ({database}) ya no es válida. Introduzca la nueva contraseña.",
+        "data": {
+          "password": "Contraseña"
+        }
       }
     },
     "error": {
@@ -19,7 +26,8 @@
       "unknown": "Error inesperado"
     },
     "abort": {
-      "already_configured": "La cuenta ya está configurada."
+      "already_configured": "La cuenta ya está configurada.",
+      "reauth_successful": "Reautenticación correcta."
     }
   },
   "entity": {

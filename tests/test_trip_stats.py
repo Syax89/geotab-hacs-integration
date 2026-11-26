@@ -184,3 +184,101 @@ class TestTotalIdleTimeWeekly:
 
     def test_empty(self):
         assert total_idle_time_weekly([]) is None
+
+
+_parse_duration = trip_stats._parse_duration
+
+
+def _make_api_trip(
+    distance: float = 10.0,
+    hours_ago: float = 1.0,
+    driving_duration: str = "00:30:00",
+    idle_duration: str = "00:05:00",
+) -> dict:
+    """Create a trip shaped like mygeotab returns it.
+
+    mygeotab deserializes date fields to timezone-aware datetime objects and
+    leaves durations as .NET TimeSpan strings.
+    """
+    start = datetime.now(timezone.utc) - timedelta(hours=hours_ago)
+    return {
+        "distance": distance,
+        "start": start,
+        "stop": start + timedelta(minutes=35),
+        "averageSpeed": 40.0,
+        "drivingDuration": driving_duration,
+        "idlingDuration": idle_duration,
+    }
+
+
+class TestParseDuration:
+    """Tests for the Geotab duration parser."""
+
+    def test_timespan(self):
+        assert _parse_duration("00:05:30") == 330.0
+
+    def test_timespan_with_days_and_fraction(self):
+        assert _parse_duration("1.02:03:04.5000000") == pytest.approx(
+            86400 + 2 * 3600 + 3 * 60 + 4.5
+        )
+
+    def test_iso8601_still_supported(self):
+        assert _parse_duration("PT5M30S") == 330.0
+
+    def test_timedelta(self):
+        assert _parse_duration(timedelta(minutes=2)) == 120.0
+
+    def test_number(self):
+        assert _parse_duration(90) == 90.0
+
+    def test_invalid(self):
+        assert _parse_duration("garbage") == 0.0
+        assert _parse_duration(None) == 0.0
+        assert _parse_duration("") == 0.0
+
+
+class TestApiShapedTrips:
+    """Trip stats must work with the data types mygeotab actually returns."""
+
+    def test_distance_and_count(self):
+        trips = [_make_api_trip(10.0, 1), _make_api_trip(5.0, 30)]
+        assert daily_distance(trips) == 10.0
+        assert weekly_distance(trips) == 15.0
+        assert daily_trip_count(trips) == 1
+        assert weekly_trip_count(trips) == 2
+
+    def test_naive_datetime_treated_as_utc(self):
+        trip = _make_api_trip(7.0, 1)
+        trip["start"] = trip["start"].replace(tzinfo=None)
+        assert daily_distance([trip]) == 7.0
+
+    def test_average_speed(self):
+        assert average_trip_speed([_make_api_trip()]) == 40.0
+
+    def test_idle_time(self):
+        trips = [_make_api_trip(idle_duration="00:30:00"), _make_api_trip(idle_duration="01:00:00")]
+        assert total_idle_time_weekly(trips) == 1.5
+
+    def test_last_trip_duration_from_timespans(self):
+        trip = _make_api_trip(driving_duration="01:00:00", idle_duration="00:30:00")
+        assert last_trip_duration_hours(trip) == 1.5
+
+    def test_last_trip_duration_falls_back_to_datetimes(self):
+        trip = _make_api_trip(driving_duration="", idle_duration="")
+        assert last_trip_duration_hours(trip) == round(35 / 60, 2)
+
+    def test_real_mygeotab_deserialization(self):
+        """Round-trip through mygeotab's own JSON deserializer."""
+        serializers = pytest.importorskip("mygeotab.serializers")
+        start = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime(
+            "%Y-%m-%dT%H:%M:%S.000Z"
+        )
+        raw = (
+            '[{"distance": 12.5, "start": "%s", "averageSpeed": 40,'
+            ' "drivingDuration": "00:30:00", "idlingDuration": "00:06:00"}]' % start
+        )
+        trips = serializers.json_deserialize(raw)
+        assert daily_distance(trips) == 12.5
+        assert daily_trip_count(trips) == 1
+        assert total_idle_time_weekly(trips) == 0.1
+        assert last_trip_duration_hours(trips[0]) == 0.6

@@ -10,6 +10,13 @@
           "database": "Database/Server",
           "scan_interval": "Intervallo di scansione (secondi)"
         }
+      },
+      "reauth_confirm": {
+        "title": "Riautenticazione Geotab",
+        "description": "La password per {username} ({database}) non è più valida. Inserisci la nuova password.",
+        "data": {
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -19,7 +26,8 @@
       "unknown": "Errore imprevisto"
     },
     "abort": {
-      "already_configured": "Account già configurato."
+      "already_configured": "Account già configurato.",
+      "reauth_successful": "Riautenticazione completata."
     }
   },
   "entity": {

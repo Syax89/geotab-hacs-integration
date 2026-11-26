@@ -164,6 +164,8 @@ class GeotabApiClient:
         self, include_trips: bool = True
     ) -> dict[str, dict[str, Any]]:
         """Get combined device and status info from the API using multi-calls."""
+        from mygeotab.exceptions import AuthenticationException
+
         try:
             loop = asyncio.get_running_loop()
             devices, results, call_map = await asyncio.wait_for(
@@ -300,6 +302,10 @@ class GeotabApiClient:
 
             return combined_data
 
+        except AuthenticationException as err:
+            # Credentials are no longer valid (e.g. password changed):
+            # surface this so Home Assistant can start a re-auth flow.
+            raise InvalidAuth("Invalid username, password, or database") from err
         except asyncio.TimeoutError as err:
             raise ApiError("Data fetch timed out after 45 seconds") from err
         except Exception as err:
