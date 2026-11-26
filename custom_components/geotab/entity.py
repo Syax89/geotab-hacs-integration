@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
 from .const import DOMAIN
@@ -47,7 +47,6 @@ class GeotabEntity(CoordinatorEntity):
             manufacturer="Geotab",
             model=f"{self.device_data.get('deviceType')} ({database})",
             hw_version=self.device_data.get("deviceType"),
-            sw_version=self.device_data.get("version"),
             serial_number=self.device_data.get("serialNumber"),
             configuration_url=config_url,
         )

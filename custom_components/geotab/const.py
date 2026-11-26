@@ -3,7 +3,6 @@
 DOMAIN = "geotab"
 DEFAULT_SCAN_INTERVAL = 60
 TRIP_FETCH_INTERVAL = 300  # Fetch trips every 5 minutes instead of every poll
-AUTO_PRUNE_REPROBE_INTERVAL = 50  # Re-probe pruned diagnostics every 50 polls
 
 # Circuit breaker: open after this many consecutive API failures
 CIRCUIT_BREAKER_MAX_FAILURES = 5

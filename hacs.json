@@ -3,5 +3,6 @@
   "content_in_root": false,
   "render_readme": true,
   "homepage": "https://github.com/Syax89/geotab-hacs-integration",
-  "hacs": "1.32.0"
+  "hacs": "1.32.0",
+  "homeassistant": "2024.11.0"
 }

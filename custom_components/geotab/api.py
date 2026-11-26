@@ -17,7 +17,34 @@ _LOGGER = logging.getLogger(__name__)
 
 TRIP_HISTORY_DAYS = 30
 TRIP_RESULTS_LIMIT = 250
+# When a device returns a full page of trips, fetch more pages starting from
+# the newest trip received, so the most recent trips are never cut off.
+TRIP_MAX_EXTRA_PAGES = 4
 FAULT_RESULTS_PER_DEVICE = 10
+
+# Per-request timeout for the mygeotab HTTP client (seconds). Without it,
+# mygeotab defaults to 300s and a timed-out executor job keeps running.
+REQUEST_TIMEOUT = 30
+AUTH_TIMEOUT = REQUEST_TIMEOUT + 5
+# Overall budget for one refresh (device list + multi-call + trip pages).
+FETCH_TIMEOUT = 90
+
+# RPM readings older than this are not used to infer ignition state.
+RPM_IGNITION_MAX_AGE = timedelta(minutes=10)
+
+
+def _as_utc(value: Any) -> datetime | None:
+    """Return a timezone-aware datetime from a datetime or ISO string."""
+    if isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if not isinstance(value, datetime):
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
 
 
 class GeotabApiClientError(Exception):
@@ -48,11 +75,13 @@ class GeotabApiClient:
         self._username = username
         self._password = password
         self._database = database
-        self._session = session
+        # mygeotab uses its own (synchronous) HTTP client; the aiohttp session
+        # is accepted for API compatibility but not used.
         self.client = mygeotab.API(
             username=self._username,
             password=self._password,
             database=self._database,
+            timeout=REQUEST_TIMEOUT,
         )
         self._diagnostic_keys_by_id = {
             diagnostic_id: key for key, diagnostic_id in DIAGNOSTICS_TO_FETCH.items()
@@ -66,7 +95,7 @@ class GeotabApiClient:
         try:
             loop = asyncio.get_running_loop()
             await asyncio.wait_for(
-                loop.run_in_executor(None, self.client.authenticate), timeout=10
+                loop.run_in_executor(None, self.client.authenticate), timeout=AUTH_TIMEOUT
             )
         except AuthenticationException as err:
             raise InvalidAuth("Invalid username, password, or database") from err
@@ -129,7 +158,58 @@ class GeotabApiClient:
                 call_map.append(f"trip_{device_id}")
 
         results = self.client.multi_call(calls)
+
+        if include_trips:
+            for index, key in enumerate(call_map):
+                if key.startswith("trip_") and isinstance(results[index], list):
+                    results[index] = self._blocking_complete_trips(
+                        key[5:], results[index]
+                    )
+
         return devices, results, call_map
+
+    def _blocking_complete_trips(
+        self, device_id: str, trips: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """Fetch further trip pages when the first page was truncated.
+
+        Geotab returns trips oldest-first, so a full page means the most
+        recent trips are missing. Keep requesting from the newest trip seen.
+        """
+        all_trips = list(trips)
+        seen_ids = {trip.get("id") for trip in all_trips if isinstance(trip, dict)}
+        page = trips
+        for _ in range(TRIP_MAX_EXTRA_PAGES):
+            if len(page) < TRIP_RESULTS_LIMIT:
+                break
+            starts = [
+                trip["start"]
+                for trip in page
+                if isinstance(trip, dict) and trip.get("start") is not None
+            ]
+            if not starts:
+                break
+            page = self.client.get(
+                "Trip",
+                search={"deviceSearch": {"id": device_id}, "fromDate": max(starts)},
+                resultsLimit=TRIP_RESULTS_LIMIT,
+            ) or []
+            new_trips = [
+                trip
+                for trip in page
+                if isinstance(trip, dict) and trip.get("id") not in seen_ids
+            ]
+            if not new_trips:
+                break
+            seen_ids.update(trip.get("id") for trip in new_trips)
+            all_trips.extend(new_trips)
+        else:
+            _LOGGER.debug(
+                "Trip history for %s truncated after %d extra pages",
+                device_id,
+                TRIP_MAX_EXTRA_PAGES,
+            )
+        return all_trips
 
     def _blocking_load_fault_diagnostics(self) -> dict[str, str]:
         """Load diagnostic names for Geotab Go faults on demand."""
@@ -144,8 +224,13 @@ class GeotabApiClient:
                 lookup[diagnostic_id] = diagnostic_name
         return lookup
 
-    def _extract_status_diagnostics(self, status_info: dict[str, Any]) -> dict[str, Any]:
-        """Extract latest diagnostics already embedded in DeviceStatusInfo."""
+    def _extract_status_diagnostics(
+        self, status_info: dict[str, Any], timestamps: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Extract latest diagnostics already embedded in DeviceStatusInfo.
+
+        If ``timestamps`` is given, it is filled with each value's dateTime.
+        """
         diagnostics: dict[str, Any] = {}
         for item in status_info.get("statusData", []):
             if not isinstance(item, dict):
@@ -158,7 +243,46 @@ class GeotabApiClient:
             if diagnostic_key is None or item.get("data") is None:
                 continue
             diagnostics[diagnostic_key] = item["data"]
+            if timestamps is not None:
+                timestamps[diagnostic_key] = item.get("dateTime")
         return diagnostics
+
+    @staticmethod
+    def _resolve_ignition(
+        status_info: dict[str, Any],
+        diagnostics: dict[str, Any],
+        timestamps: dict[str, Any],
+        now: datetime,
+    ) -> int | None:
+        """Work out the ignition state from the available signals.
+
+        DeviceStatusInfo only carries the *last known* value of each
+        diagnostic, which can be hours old, so stale RPM readings must not
+        keep the ignition "on".
+        """
+        if status_info.get("isDriving"):
+            return 1
+        if status_info.get("isIgnitionOn") is not None:
+            return 1 if status_info["isIgnitionOn"] else 0
+
+        ignition = diagnostics.get("ignition")
+        ignition_ts = _as_utc(timestamps.get("ignition"))
+        rpm = diagnostics.get("rpm")
+        rpm_ts = _as_utc(timestamps.get("rpm"))
+
+        rpm_is_fresh = (
+            rpm is not None
+            and rpm_ts is not None
+            and now - rpm_ts <= RPM_IGNITION_MAX_AGE
+            and (ignition_ts is None or rpm_ts > ignition_ts)
+        )
+        if rpm_is_fresh:
+            return 1 if rpm > 0 else 0
+        if ignition is not None:
+            return 1 if ignition else 0
+        if status_info.get("isDriving") is False and not status_info.get("speed"):
+            return 0
+        return None
 
     async def async_get_full_device_data(
         self, include_trips: bool = True
@@ -170,7 +294,7 @@ class GeotabApiClient:
             loop = asyncio.get_running_loop()
             devices, results, call_map = await asyncio.wait_for(
                 loop.run_in_executor(None, lambda: self._blocking_fetch_all(include_trips)),
-                timeout=45,
+                timeout=FETCH_TIMEOUT,
             )
 
             if not devices:
@@ -178,6 +302,7 @@ class GeotabApiClient:
 
             status_map: dict[str, dict[str, Any]] = {}
             diagnostics_map: defaultdict[str, dict[str, Any]] = defaultdict(dict)
+            timestamps_map: defaultdict[str, dict[str, Any]] = defaultdict(dict)
             fault_map: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
             trip_results_dict: dict[str, list[dict[str, Any]]] = {}
             diagnostics_lookup = dict(self._diagnostics_lookup_cache)
@@ -196,7 +321,9 @@ class GeotabApiClient:
                         device_id = device["id"]
                         status_map[device_id] = status
                         diagnostics_map[device_id].update(
-                            self._extract_status_diagnostics(status)
+                            self._extract_status_diagnostics(
+                                status, timestamps_map[device_id]
+                            )
                         )
 
                 elif key == "faults" and isinstance(result, list):
@@ -247,6 +374,7 @@ class GeotabApiClient:
                 "included" if include_trips else "cached",
             )
 
+            now = datetime.now(timezone.utc)
             combined_data: dict[str, dict[str, Any]] = {}
             for device in devices:
                 device_id = device.get("id")
@@ -258,13 +386,8 @@ class GeotabApiClient:
                 diag_data = diagnostics_map.get(device_id, {})
                 data.update(diag_data)
 
-                if data.get("odometer") is None:
-                    if diag_data.get("odometer") is not None:
-                        data["odometer"] = diag_data["odometer"]
-                    elif diag_data.get("odometer_raw") is not None:
-                        data["odometer"] = diag_data["odometer_raw"]
-                    elif diag_data.get("total_distance") is not None:
-                        data["odometer"] = diag_data["total_distance"]
+                if data.get("odometer") is None and diag_data.get("total_distance") is not None:
+                    data["odometer"] = diag_data["total_distance"]
 
                 if data.get("engine_hours") is None and diag_data.get("engine_hours_raw") is not None:
                     data["engine_hours"] = diag_data["engine_hours_raw"]
@@ -284,19 +407,15 @@ class GeotabApiClient:
                     _LOGGER.debug("[%s] %d valid trips loaded", device_name, len(trip_list))
 
                 if status_info := status_map.get(device_id):
-                    status_data_ignition = data.get("ignition")
                     status_payload = dict(status_info)
                     status_payload.pop("statusData", None)
                     data.update(status_payload)
 
-                    if data.get("rpm", 0) > 0:
-                        data["ignition"] = 1
-                    elif status_info.get("isIgnitionOn") is not None:
-                        data["ignition"] = 1 if status_info["isIgnitionOn"] else 0
-                    elif status_info.get("isDriving") is False and status_info.get("speed", 0) == 0:
-                        data["ignition"] = 0
-                    elif status_data_ignition is not None:
-                        data["ignition"] = status_data_ignition
+                    ignition = self._resolve_ignition(
+                        status_info, diag_data, timestamps_map.get(device_id, {}), now
+                    )
+                    if ignition is not None:
+                        data["ignition"] = ignition
 
                 combined_data[device_id] = data
 
@@ -307,6 +426,6 @@ class GeotabApiClient:
             # surface this so Home Assistant can start a re-auth flow.
             raise InvalidAuth("Invalid username, password, or database") from err
         except asyncio.TimeoutError as err:
-            raise ApiError("Data fetch timed out after 45 seconds") from err
+            raise ApiError(f"Data fetch timed out after {FETCH_TIMEOUT} seconds") from err
         except Exception as err:
             raise ApiError(f"Failed to get device data: {err}") from err
