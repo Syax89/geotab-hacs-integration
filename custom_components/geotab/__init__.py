@@ -13,7 +13,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .api import GeotabApiClient, ApiError, InvalidAuth
+from .api import GeotabApiClient, InvalidAuth
 from .const import (
     DOMAIN,
     DEFAULT_SCAN_INTERVAL,
@@ -115,7 +115,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         except InvalidAuth as err:
             # Auth errors won't fix themselves; notify HA to prompt re-auth
             raise ConfigEntryAuthFailed(f"Invalid authentication: {err}") from err
-        except (ApiError, Exception) as err:
+        except Exception as err:  # noqa: BLE001 - includes ApiError
             consecutive_failures += 1
             if consecutive_failures >= CIRCUIT_BREAKER_MAX_FAILURES:
                 circuit_open_since = dt_util.utcnow()

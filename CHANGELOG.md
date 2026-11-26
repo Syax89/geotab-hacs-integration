@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.4] - 2026-11-26
+
+### Added
+- **Re-authentication**: When the Geotab password changes, Home Assistant now shows a re-authentication prompt instead of failing silently. Only the new password is requested; username and database are kept.
+
+### Fixed
+- **Trip Statistics**: Daily/weekly/monthly distance, trip counts, average speed and idle time always reported 0 or unknown with real data, because `mygeotab` returns trip dates as `datetime` objects rather than strings. Both forms are now handled.
+- **Trip Durations**: Geotab returns durations in .NET TimeSpan format (`00:30:00`, `1.02:03:04`), not ISO 8601. Idle time and last-trip duration now parse these correctly (ISO 8601 is still accepted).
+- **Authentication Errors During Polling**: Invalid credentials while polling were reported as generic API errors and tripped the circuit breaker; they now raise an authentication failure that triggers re-authentication.
+- **Tests**: Added tests using data shaped like real `mygeotab` responses, plus re-auth flow tests.
+
 ## [1.5.3] - 2026-03-18
 
 ### Changed

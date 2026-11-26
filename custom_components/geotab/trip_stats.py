@@ -7,6 +7,12 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timedelta, timezone
+from typing import Any
+
+# .NET TimeSpan format used by the Geotab API: [-][d.]hh:mm:ss[.fffffff]
+_TIMESPAN_RE = re.compile(
+    r"^(?:(\d+)\.)?(\d{1,2}):(\d{1,2}):(\d{1,2}(?:\.\d+)?)$"
+)
 
 
 def _parse_iso8601_duration(duration_str: str) -> float:
@@ -30,12 +36,50 @@ def _parse_iso8601_duration(duration_str: str) -> float:
     return days * 86400 + hours * 3600 + minutes * 60 + seconds
 
 
-def _parse_datetime(dt_str: str) -> datetime | None:
-    """Parse an ISO datetime string to a timezone-aware datetime."""
-    if not dt_str:
+def _parse_duration(value: Any) -> float:
+    """Parse a Geotab duration to total seconds.
+
+    The Geotab API returns durations as .NET TimeSpan strings
+    (e.g. "00:05:30" or "1.02:03:04.5000000"). ISO 8601 strings, timedelta
+    objects and plain numbers (seconds) are accepted as well.
+    Returns 0.0 if the value cannot be parsed.
+    """
+    if value is None or isinstance(value, bool):
+        return 0.0
+    if isinstance(value, timedelta):
+        return value.total_seconds()
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return 0.0
+    if match := _TIMESPAN_RE.match(text):
+        days = int(match.group(1) or 0)
+        return (
+            days * 86400
+            + int(match.group(2)) * 3600
+            + int(match.group(3)) * 60
+            + float(match.group(4))
+        )
+    if text.startswith("P"):
+        return _parse_iso8601_duration(text)
+    return 0.0
+
+
+def _parse_datetime(value: Any) -> datetime | None:
+    """Parse a datetime (object or ISO string) to a timezone-aware datetime.
+
+    The mygeotab library already deserializes date fields to datetime
+    objects, so both forms must be supported.
+    """
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+    if not value or not isinstance(value, str):
         return None
     try:
-        dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt
@@ -48,7 +92,7 @@ def _filter_trips_since(trips: list[dict], hours: int) -> list[dict]:
     cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
     result = []
     for trip in trips:
-        start = _parse_datetime(trip.get("start", ""))
+        start = _parse_datetime(trip.get("start"))
         if start and start >= cutoff:
             result.append(trip)
     return result
@@ -106,13 +150,13 @@ def last_trip_duration_hours(trip: dict | None) -> float | None:
     if not trip:
         return None
 
-    driving_seconds = _parse_iso8601_duration(str(trip.get("drivingDuration") or ""))
-    idle_seconds = _parse_iso8601_duration(str(trip.get("idlingDuration") or ""))
+    driving_seconds = _parse_duration(trip.get("drivingDuration"))
+    idle_seconds = _parse_duration(trip.get("idlingDuration"))
     total_seconds = driving_seconds + idle_seconds
 
     if total_seconds == 0:
-        start = _parse_datetime(str(trip.get("start") or ""))
-        stop = _parse_datetime(str(trip.get("stop") or ""))
+        start = _parse_datetime(trip.get("start"))
+        stop = _parse_datetime(trip.get("stop"))
         if start and stop and stop >= start:
             total_seconds = (stop - start).total_seconds()
 
@@ -129,7 +173,7 @@ def total_idle_time_weekly(trips: list[dict]) -> float | None:
     for trip in recent:
         idle = trip.get("idlingDuration")
         if idle is not None:
-            total_seconds += _parse_iso8601_duration(str(idle))
+            total_seconds += _parse_duration(idle)
             count += 1
     if count == 0:
         return None

@@ -82,3 +82,13 @@ async def test_api_get_data_api_error(mock_geotab_api):
     client = GeotabApiClient("user", "pass", "db", session)
     with pytest.raises(ApiError):
         await client.async_get_full_device_data()
+
+
+@pytest.mark.asyncio
+async def test_api_get_data_invalid_auth(mock_geotab_api):
+    """Expired/changed credentials during polling must raise InvalidAuth."""
+    mock_geotab_api.get.side_effect = AuthenticationException("user", "db", "server")
+    session = MagicMock()
+    client = GeotabApiClient("user", "pass", "db", session)
+    with pytest.raises(InvalidAuth):
+        await client.async_get_full_device_data()
